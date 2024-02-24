@@ -55,7 +55,7 @@ Here is the plot of the batch loss over time (We can see that it decreases over 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../figs/1-1-5.png}   
-    \caption{Learning Curve (Batch Loss over Time) and Test Loss and Accuracy} 
+    \caption{Learning Curve (Batch Loss over Time), Test Loss and Accuracy} 
     \label{fig:scenario1}
 \end{figure}
 
@@ -204,7 +204,7 @@ rate of $\eta$ = 0.1 and batch size of 32. Run the algorithm until the training 
         In scenarios where the training sample accurately reflects the diversity of handwritten digits, 
         one would expect better generalization to unseen data, with test loss and error ideally 
         decreasing or stabilizing over training iterations. 
-        owever, the observed discrepancy underscores the importance of training data diversity. 
+        However, the observed discrepancy underscores the importance of training data diversity. 
         While our sample contains 10 images of each digit, the true distribution of handwritten 
         digits in real-world data may be more varied, potentially limiting the model's ability to generalize effectively.
 
@@ -267,6 +267,51 @@ at all times previous to the update t = 1, \dots,  n.
     &= \alpha^3 \Delta w_{ij}^{n-3} - \alpha^2 \eta \frac{\partial E_{n-2}}{\partial w_{ij}^{n-2}} - \alpha \eta \frac{\partial E_{n-1}}{\partial w_{ij}^{n-1}} - \eta \frac{\partial E_{n}}{\partial w_{ij}^{n}} \\
     &= \alpha^n \Delta w_{ij}^{0} - \eta \sum_{k=0}^{n-1} \alpha^{k} \frac{\partial E_{n-k}}{\partial w_{ij}^{n-k}} \\
 \end{align*}
+
+
+
+\textcolor{myblue}{
+\textbf{2.2} {
+    What is a \textit{necessary} condition on choosing the momentum parameter $\alpha$ to allow the update 
+    value $\Delta w_{ij}^{n}$ to converge (as n $\rightarrow \infty$)?
+    }  
+}
+
+A necessary condition for the update value $\Delta w_{ij}^{n}$ to converge as $n \rightarrow \infty$ is that the momentum parameter $\alpha$ must be less than 1 in absolute value.
+If $\lvert \alpha \rvert \geq 1$, the update value $\Delta w_{ij}^{n}$ will diverge as $n \rightarrow \infty$
+(The update value is approximately geometric series, 
+and the sum of a geometric series converges if the common ratio is less than 1 in absolute value.).
+
+
+\bigskip
+\textcolor{myblue}{
+\textbf{2.3} {
+    How does the added momentum term affect the rate of convergence of $\Delta w_{ij}^{n}$ when the gradient
+    $\frac{\partial E_{n}}{\partial w_{ij}^{n}}$ has the same sign update at every n?
+    }  
+}
+
+When the gradient $\frac{\partial E_{n}}{\partial w_{ij}^{n}}$ has the same sign update at every n,
+(i.e., the direction of the gradient does not change), 
+the addition of a momentum term can accelerate the convergence of $\Delta w_{ij}^{n}$.
+The momentum term helps to smooth out fluctuations in the gradient direction by introducing a "weighted moving average" 
+of the previous updates. This means that if the gradient consistently points in the same direction, 
+the momentum term will gradually accumulate in that direction, leading to larger updates over time. 
+Consequently, the model's weights will be adjusted more rapidly along the direction of the gradient, 
+facilitating faster convergence.
+
+\smallskip
+\textcolor{myblue}{
+    What happens if the sign flips with every iteration?
+}  
+
+In this scenario, where the gradient direction changes frequently, the momentum term can help stabilize the 
+updates by smoothing out the fluctuations in the direction of the updates. 
+Even though the gradient direction may change from one iteration to the next, the momentum term accumulates 
+the previous updates, leading to a more consistent overall direction for weight updates.
+However, the effectiveness of the momentum term may be reduced compared to cases where the gradient direction remains constant. 
+The frequent changes in the gradient direction can lead to less effective accumulation of momentum over time, 
+potentially slowing down the convergence process.
 
 \end{document}
 
