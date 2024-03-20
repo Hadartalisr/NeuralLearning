@@ -9,14 +9,20 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{amsthm}
 \usepackage{tikz}
+\usepackage{subcaption}
+\usetikzlibrary{positioning}
+\usepackage{pgfplots} % Add this line to import the pgfplots package
+
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{claim}{claim}[section]
 
 
 \title{Summary of 76909 - Neural Learning}
-\author{Your Name Here}
-\date{Academic Year}
+\author{Hadar Tal}
+\date{Winter 2024}
 
 \begin{document}
 
@@ -47,6 +53,17 @@ The derivative of a scalar function with respect to a vector, \(\nabla_{\mathbf{
 \subsection{Examples}
 
 For a function \(f(\mathbf{x}) = \mathbf{x}^T\mathbf{A}\mathbf{x} + \mathbf{b}^T\mathbf{x} + c\), where \(\mathbf{x}\) is a vector, \(\mathbf{A}\) is a matrix, \(\mathbf{b}\) is a vector, and \(c\) is a scalar, the gradient with respect to \(\mathbf{x}\) is \(\nabla_{\mathbf{x}} f(\mathbf{x}) = 2\mathbf{A}\mathbf{x} + \mathbf{b}\).
+
+\subsection{multi-variate chain rule}
+Let $y(x,z)$ be a function of $x$ and $z$, and $x(w)$ and $z(w)$ be functions of $w$. 
+Then the derivative of $y$ with respect to $w$ is given by:
+\begin{equation}
+    \frac{dy}{dw} = \frac{\partial y}{\partial x} \frac{dx}{dw} + \frac{\partial y}{\partial z} \frac{dz}{dw}
+\end{equation}
+
+%
+%
+%
 
 \section{Probability}
 
@@ -98,10 +115,147 @@ This criterion implies that the quadratic form of \(\mathbf{A}\) is never negati
 A symmetric matrix \(\mathbf{A} \in \mathbb{R}^{n \times n}\) is positive definite if and only if all its eigenvalues are positive.
 \end{theorem}
 
+\subsection{Norms}
+Here are some common vector norms that are frequently used in the context of machine learning and optimization:
+\begin{itemize}
+    \item The $L_0$ norm of a vector \(\mathbf{x} \in \mathbb{R}^n\) is given by \(\lVert \mathbf{x} \rVert_0 = \sum_{i=1}^{n} \mathbf{1}(x_i \neq 0)\), where \(\mathbf{1}(\cdot)\) is the indicator function.
+    \item The $L_1$ norm of a vector \(\mathbf{x} \in \mathbb{R}^n\) is given by \(\lVert \mathbf{x} \rVert_1 = \sum_{i=1}^{n} \lvert x_i \rvert\).
+    \item The \textit{Euclidean norm} ($L_2$) of a vector \(\mathbf{x} \in \mathbb{R}^n\) is given by \(\lVert \mathbf{x} \rVert_2 = \sqrt{\sum_{i=1}^{n} x_i^2}\).
+    \item The infinity norm of a vector \(\mathbf{x} \in \mathbb{R}^n\) is given by \(\lVert \mathbf{x} \rVert_{\infty} = \max_{i} \lvert x_i \rvert\).
+    \item The \textit{Frobenius norm} of a matrix \(\mathbf{A} \in \mathbb{R}^{m \times n}\) is defined as \(\lVert \mathbf{A} \rVert_F = \sqrt{\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij}^2}\).
+\end{itemize}
+
+%
+%
+%
 
 \section{KKT conditions}
-\subsection{Definition}
-\subsection{Dual problem}
+\subsection{Optimization with Constraints}
+
+Optimization with constraints involves finding the optimal solution of an objective function within a set of permissible solutions defined by constraints. These constraints can be equalities, inequalities, or both, and they restrict the feasible region over which the optimization is performed.
+we consider the following general constrained optimization problem:
+\begin{equation}
+\begin{aligned}
+& \underset{\mathbf{x} \in \mathbb{R}^n }{\text{minimize}}
+& & f(\mathbf{x}) \\
+& \text{subject to}
+& & g_i(\mathbf{x}) \leq 0, \; i = 1, 2, \ldots, p \\
+&&& h_j(\mathbf{x}) = 0, \; j = 1, 2, \ldots, k
+\end{aligned}
+\end{equation}
+where \(f(\mathbf{x})\) is the objective function, \(g_i(\mathbf{x}) \leq 0\) are the inequality constraints, and \(h_j(\mathbf{x}) = 0\) are the equality constraints.
+
+%
+%
+
+\subsection{Lagrangian}
+
+The Lagrangian function is a strategy to solve optimization problems with constraints by converting them into unconstrained problems. For a function \( f(x) \) subject to \( g_i(x) \leq 0 \) and \( h_j(x) = 0 \), the Lagrangian is defined as:
+
+\[
+\mathcal{L}(x, \lambda, \nu ) = f(x) + \sum_{i}\lambda_i g_i(x) + \sum_{j}\nu_j h_j(x)
+\]
+where \( \lambda_i \) and \( \mu_j \) are the Lagrange multipliers associated with the inequality and equality constraints, respectively.
+
+Let $S = \{x \in \mathbb{R}^n | g_i(x) \leq 0, h_j(x) = 0\}$ be the feasible set of the optimization problem. 
+\begin{claim}
+\[
+    \min_{x \in S} f(x) = \min_{x \in \mathbb{R}^n} \max_{\lambda \geq 0, \nu} \mathcal{L}(x, \lambda, \nu)
+\]
+\end{claim}
+
+\begin{claim}[Weak duality]
+\[
+    \max_{\lambda \geq 0, \nu} \min_{x \in \mathbb{R}^n} \mathcal{L}(x, \lambda, \nu) \leq \min_{x \in \mathbb{R}^n} \max_{\lambda \geq 0, \nu} \mathcal{L}(x, \lambda, \nu)
+\]  
+\end{claim}
+
+\begin{definition}[The dual problem]
+Let 
+\[
+  g(\lambda, \nu) = \min_{x \in \mathbb{R}^n} \mathcal{L}(x, \lambda, \nu),        \forall \lambda \geq 0, \nu  
+\]
+The dual problem is defined as:
+\[
+    \max_{\lambda \geq 0, \nu} g(\lambda, \nu) = \max_{\lambda \geq 0, \nu} \min_{x \in \mathbb{R}^n} \mathcal{L}(x, \lambda, \nu)
+\]
+
+\begin{claim}[Weak duality (equivalent form)]
+\[
+    \max_{\lambda \geq 0, \nu} g(\lambda, \nu) \leq \min_{x \in S} f(x)
+\]
+\end{claim}
+\end{definition}
+
+\subsection{Karush-Kuhn-Tucker (KKT) Conditions}
+
+The KKT conditions extend the method of Lagrange multipliers to handle inequality constraints. 
+They provide necessary conditions for a solution to be optimal. 
+\begin{definition}[KKT conditions]
+
+Variables \(x^* \in \mathbb{R}^n\), \(\lambda^* \in \mathbb{R}^p\), and \(\nu^* \in \mathbb{R}^k\) are said to satisfy the KKT conditions if they satisfy the following conditions:
+\begin{itemize}
+    \item Primal feasibility: \(g_i(x^*) \leq 0, \; i = 1, 2, \ldots, p\), and \(h_j(x^*) = 0, \; j = 1, 2, \ldots, k\)
+    \item Dual feasibility: \(\lambda_i^* \geq 0, \; i = 1, 2, \ldots, p\)
+    \item Stationarity: 
+    \[ 
+    \nabla_x L(x^*, \lambda^*, \nu^*) = \nabla_x f(x^*) + \sum_{i=1}^{p} \lambda_i \nabla_x g_i(x^*) + \sum_{j=1}^{k} \nu_j \nabla_x h_j(x^*) = 0
+    \]
+    \item Complementary slackness: \(\lambda_i^* g_i(x^*) = 0, \; i = 1, 2, \ldots, p\)
+\end{itemize}
+\end{definition}
+
+These conditions are necessary for a solution to be optimal, but they are not sufficient.
+For convex problems, the KKT conditions are both necessary and sufficient for optimality.
+
+\begin{theorem}[KKT conditions for convex problems]
+If the objective function and the inequality and equality constraints are convex, then the KKT conditions are both necessary and sufficient for optimality.
+Namely, 
+\[
+  f(x^*) - g(\lambda^*, \nu^*) = 0  
+\]
+\end{theorem}
+
+\subsection{Interpretation: Single Constraint}
+
+Let's first consider a simple problem over $\mathbb{R}^d$ with a single inequality constraint:
+\begin{align*}
+    & \min_{x \in \mathbb{R}^d} f(x) \\
+    & \text{s.t.} \quad g(x) \leq 0.
+\end{align*}
+
+Assuming that KKT conditions hold, we have that
+\[
+    \nabla f(x^*) + \lambda^* \nabla g(x^*) = 0, \quad \text{and} \quad \lambda^* g(x^*) = 0.
+\]
+
+This can be interpreted as follows:
+
+\begin{itemize}
+    \item If $x^*$ is attained in the interior of the feasible domain, we expect that $\nabla f(x^*) = 0$. Indeed, if $g(x^*) < 0$, then $\lambda^* = 0 \implies \nabla f(x^*) = 0$.
+    \item Otherwise, $x^*$ is attained on the boundary of the domain, where $\nabla g(x^*)$ is orthogonal to the boundary and points outwards, whereas $\nabla f(x^*)$ is also orthogonal to the boundary but points inwards (or is zero). In other words, there exists a scaling factor $\lambda^* \geq 0$ such that
+    \[
+        \nabla f(x^*) = -\lambda^* \nabla g(x^*),
+    \]
+    which is precisely what we obtain from the optimality conditions.
+\end{itemize}
+
+
+\begin{figure}[]
+\centering
+\includegraphics[width=0.4\textwidth]{Figs/kkt.png}
+\caption{Graphical interpretation of KKT conditions on a single constraint.}
+\label{fig:kkt}
+\end{figure}
+
+
+\subsection{Benefits of the Dual Problem}
+
+The dual problem can be advantageous because it may be easier to solve than the primal problem. Additionally, it offers insights into the sensitivity of the optimal value to changes in the objective function or constraints. The duality gap, the difference between the solutions of the primal and dual problems, is zero under certain conditions, which provides a certificate of optimality for the primal solution.
+
+%
+%
+%
 
 \section{Smooth functions}
 \subsection{Definition by derivatives}
@@ -154,12 +308,57 @@ We can choose the model for a given problem some examples are:
 \begin{itemize}
     \item Linear regression $y = \mathbf{w}^T \mathbf{x} = b$
     \item Quadratic regression $y = \mathbf{w_2} \lVert \mathbf{x} \rVert^2 + \mathbf{w_1} \mathbf{x} + \mathbf{w_0}$
-    \item SVM
-    \item Neural networks 
+    \item Polynomial regression $y = \sum_{i=0}^{N} \mathbf{w_i} \lVert \mathbf{x} \rVert^i$
+            While the equation is non linear in the input, it is quadratic in the weights, so the error function is convex.
+
+    \item Fourier series $y = \sum_{k=n}^{N} \mathbf{w_k} e^{i k \pi \mathbf{x} / P}$ 
 \end{itemize}
+Using reacher models we can represent more complex functions, but we need to be careful with overfitting.
 
 \subsubsection{Generalization}
-\subsubsection{No free lunch theorem}
+
+\begin{definition}[Training error]
+$E_{tr} = \frac{1}{P} \sum_{\mu=1}^{P} (\hat{y}(\mathbf{x}^\mu, \mathbf{w}) - y^\mu)^2$
+\end{definition}
+
+\begin{definition}[Generalization error]
+$E_{g} = \int P(\mathbf{x}) (\hat{y}(\mathbf{x}, \mathbf{w}) - y(\mathbf{x}))^2 d\mathbf{x}$
+\end{definition}
+
+We have 2 assumptions:
+\begin{itemize}
+    \item All input come from some distribution $x^\mu \sim P(x)$. In most applications we will assume that any sample from the training set is an independent and identically distributed (i.i.d.) sample from the distribution $P(x)$.
+    \item There is an underlying pattern in the labels $y^\mu \sim P(y|x^\mu)$
+\end{itemize}
+We will always have $E_{tr} \leq E_{g}$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figs/capacity-error-curve.png}
+    \caption{Capacity VS Error curve}
+    \label{fig:scenario1}
+\end{figure}
+
+\subsubsection{No free lunch theorem (NFT)}
+\begin{theorem}
+    If an algorithm performs well on a certain class of problems, it necessarily pays for that with degraded performance on the set of all remaining problems.
+\end{theorem}
+\begin{corollary}
+    Every 2 optimization algorithms are equivalent when their performance is averaged across all possible problems.
+\end{corollary}
+
+\subsubsection{Regularization}
+\begin{definition}
+    Regularization is a technique used to prevent overfitting by discouraging overly complex models.
+\end{definition}
+
+\begin{itemize}
+    \item Sparse parameters: $E_{tr}(\mathbf{w}) = \sum_{\mu=1}^{P} (\hat{y}(\mathbf{x}^\mu, \mathbf{w}) - y^\mu)^2 + \lambda \lVert \mathbf{w} \rVert_0$
+    \item L1 regularization (Lasso): $E_{tr}(\mathbf{w}) = \sum_{\mu=1}^{P} (\hat{y}(\mathbf{x}^\mu, \mathbf{w}) - y^\mu)^2 + \lambda \lVert \mathbf{w} \rVert_1$
+    \item L2 regularization: $E_{tr}(\mathbf{w}) = \sum_{\mu=1}^{P} (\hat{y}(\mathbf{x}^\mu, \mathbf{w}) - y^\mu)^2 + \lambda \lVert \mathbf{w} \rVert_2^2$
+        We can solve this optimization problem analytically, and the solution is $\mathbf{w}^* = (\mathbf{X}\mathbf{X}^T + \lambda \mathbf{I})^{-1}\mathbf{X}\mathbf{Y}$
+\end{itemize}
+
 
 %
 %
@@ -316,21 +515,80 @@ Alternatively, in vectorized notation:
 \subsubsection{Admissible kernels}
 
 \section{The Cerebellum}
+
 \subsection{Cerebellar anatomy, physiology, and function}
+The cerebellum accounts for approximately 10\% of the brain's volume but contains over 50\% of its neurons. It is known for its organized, preserved hierarchical feedforward structure. Traditionally associated with motor control and coordination, recent studies have linked the cerebellum to a variety of cognitive functions, including spatial reasoning, timing, language, and working memory.
+
 \subsubsection{Basic facts}
+The cerebellum is significant not only due to its volume but also due to the sheer number of neurons it contains. Its structure has been preserved across species, which indicates its importance in brain function.
+
 \subsubsection{The cerebellum's function}
+Historically, the cerebellum's function has been recognized as crucial for motor control. The classical view is that it fine-tunes motor control and coordination, interacting with the motor cortex and the motor system. The modern view extends its functions to interaction with various cortical areas, contributing to cognitive abilities.
+
 \subsubsection{The cerebellum's anatomy}
+The cerebellum's circuit includes parallel fibers, stellate and basket cells, Golgi cells, Purkinje cells, granule cells, climbing fibers, mossy fibers, and the Deep Cerebellar Nuclei. Each of these components plays a specific role in cerebellar processing.
+
 \subsubsection{The cerebellar circuit}
+Inputs to the cerebellum come through mossy fibers and a single climbing fiber, while the output is mediated by the Purkinje cells. An error signal is thought to be provided by the climbing fibers.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/cerebellums_anatomy.jpg}
+        \label{fig:first_subfig}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/cerebellums_anatomy2.jpeg}
+        \label{fig:second_subfig}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/cerebellums_anatomy3.jpeg}
+        \label{fig:third_subfig}
+    \end{subfigure}
+    \label{fig:three_subfigures}
+    \caption[short]{The cerebellum's anatomy.}
+\end{figure}
+
+
 \subsubsection{The cerebellar computational unit}
+The computational unit of the cerebellum includes inputs from ~1,000 mossy fibers and a single climbing fiber, which are processed by ~200,000 parallel 
+fibers and inhibitory interneurons, eventually influencing the output through a single Purkinje cell.
+
 \subsubsection{Divergence and convergence in the cerebellum}
+The cerebellum demonstrates a remarkable level of divergence and convergence. For instance, approximately 200 million mossy fibers diverge into 40 billion granule cells and then converge onto 15 million Purkinje cells. This massive divergence and convergence is crucial for the cerebellum's computational capacity.
+
 \subsection{Plasticity and learning in the cerebellum}
+
 \subsubsection{The Purkinje cell}
+The Purkinje cell is unique for its planar dendritic arbor and is the sole output of the cerebellar cortex, inhibiting the Deep Cerebellar Nuclei. The plasticity observed in Purkinje cells is a central mechanism for cerebellar learning.
+The Purkinje cell responds to climbing fiber inputs with a massive, all-or-none, 'complex spike'. The comlex spikes are relattively rare. 
+
+\begin{figure}[ht]
+\centering
+\centering
+\includegraphics[width=0.6\textwidth]{./Figs/CF_PF.jpeg}
+\label{fig:CF_PF}
+\caption{When both CF (Climbing Fiber) and PF (Parallel Fiber) are active, LTD is induced.}
+\end{figure}
+
 \subsubsection{LTD and LTP in the Purkinje cell}
-\subsubsection{The Purkinje cell as a perceptron}
+Long-Term Depression (LTD) and Long-Term Potentiation (LTP) in the Purkinje cells are responses to the synaptic activity between parallel fibers and climbing fibers. Climbing fibers signal errors, leading to LTD when paired with parallel fiber activation, and LTP occurs when parallel fibers are activated without climbing fibers.
+
 \subsection{Marr-Albus theory for learning in the cerebellum}
+
 \subsubsection{Motor learning in the cerebellum}
+The Marr-Albus theory posits that the mossy fibers provide input patterns while the inferior olive generates an error signal when unexpected sensory input occurs. This framework helps explain how the cerebellum adapts and learns from motor errors, with the Purkinje cells playing a pivotal role.
+
 \subsubsection{Main points the theory explains}
+The theory explains the low frequency of complex spikes and climbing fiber firing, suggesting that these fibers do not contribute to ongoing motor execution but instead provide error signals for motor learning and adaptation.
+
 \subsubsection{Extensions to the perceptron theory}
+Recent studies have extended the perceptron theory, indicating that while the expansion of inputs helps, the benefits are limited without specific structural organization. Additionally, more layers in the cerebellar network model can lead to better learning outcomes.
 
 \section{Gradient-based Learning}
 \subsection{Batch learning}
@@ -363,12 +621,94 @@ Alternatively, in vectorized notation:
 \chapter{Deep Neural Networks}
 
 \section{Multi-layered perceptrons vs the kernel method}
+The differences between the kernel method and multi-layered perceptrons:
+\begin{itemize}
+    \item In MLP the is no expansion. We only relied on the non-linearity of the activation function.
+    \item All the weights need to be learned to solve the problem. In the kernel method, we only need to learn the support vectors. 
+    The feature space was used to untie the non-linearity of the problem.
+    \item The benefits of the kernel method are:
+    \begin{itemize}
+        \item Better performance in high dimensional spaces.
+        \item No need to engineer the features.
+        \item In online learning (the kernel method used all the data to learn the support vectors).
+        \item Complexity with very large data sets-like the ones required for many modern applications.
+    \end{itemize}
+\end{itemize}
 
-\section{Definitions}
-\subsection{Structure}
-\subsection{Forward propagation (pass)}
+\section{Structure}
+\begin{itemize}
+    \item The architecture consists of $L$ layers.
+        Each layer $l$ has $N_l$ neurons, where $l = 1, 2, \ldots, L$.
+        The first layer contains $N_0$ neurons, which is the dimensionality of the input.
+        The $L-1$ hidden layers can contain any number of neurons.
+        The last layer contains $N_L$ neurons, which is the dimensionality of the output and is determined by the problem.
+        \begin{itemize}
+            \item It can be any activation function for regression problems.
+            \item For binary classification, the output can be binary.
+            \item For multi-class classification, the output can be a softmax function, which has the following formula:
+            $\hat{y_i} (s_i^L) = \frac{e^{s_i^L}}{\sum_{j=1}^{N_L} e^{s_j^L}} , \mathbb{R} \rightarrow (0, 1)$
+            Here the readout neurons are no longer independent, and the output is normalized to sum to 1. 
+            The outputs represent the probability of the input belonging to each class.
+        \end{itemize}
+    \item Denote by $\phi$ the non-linear activation function, by $W^l$ the matrix $N_l \times N_{l-1}$ of weights, that leads from $s^{l-1}$ to $s^l$. 
+        The output of the $l$-th layer is given by 
+        \begin{align*}
+            s^l = \phi(W^l s^{l-1}) \\
+            s_i^l = \phi(\sum_{j=1}^{N_{l-1}} W_{ij}^l s_j^{l-1}) = \phi((w_i^l)^T s^{l-1}) \\ 
+            s^0 = x , N_0 = N, s^L = y
+        \end{align*}
+\end{itemize}
+
+\begin{tikzpicture}[node distance=1cm and 2cm]
+    % Define nodes
+    \node (s1) {\( S_1^{l-1} \)};
+    \node[below=of s1] (s2) {\( S_2^{l-1} \)};
+    \node[below=of s2] (s3) {\( S_3^{l-1} \)};
+    \node[right=of s1, xshift=2cm] (s4) {\( S_1^{l} \)};
+    \node[below=of s4] (s5) {\( S_2^{l} \)};
+    % Connect nodes
+    \foreach \i in {1,...,3}
+        \foreach \j in {4,...,5}
+            \draw[->] (s\i) -- (s\j);
+\end{tikzpicture}
+\begin{tikzpicture}
+    % Draw matrix
+    \node[right=of s2, xshift=1cm] (matrix) {
+        \( W^l = \begin{pmatrix}
+            w_{11} & w_{12} & w_{13} \\
+            w_{21} & w_{22} & w_{23}
+        \end{pmatrix} \)
+    };
+    % Draw equation
+    \node[right=of s5, xshift=2cm] (equation) {
+        \( S^l = \phi(W^l S^{l-1}) \)
+    };
+\end{tikzpicture}
+
 \subsection{Activation functions}
+Typical activation functions include:
+\begin{itemize}
+    \item The sigmoid function (logistic) : $\phi(x) = \frac{1}{1 + e^{-x}}, \mathbb{R} \rightarrow (0, 1)$
+    \item The hyperbolic tangent function: $\phi(x) = \tanh(x) , \mathbb{R} \rightarrow (-1, 1)$
+    \item The rectified linear unit (ReLU): $\phi(x) = \max(0, x) , \mathbb{R} \rightarrow [0, \infty)$
+    \item The leaky ReLU: $\phi(x) = \max(\alpha x, x), \alpha \in (0, 1), \mathbb{R} \rightarrow (-\infty, \infty)$
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{Figs/activation_functions.png}
+    \caption{Activation functions}
+\label{fig:activation_functions}
+\end{figure}
+
+
 \subsection{Loss functions}
+The quadratic loss function is given by:
+\begin{align*}
+    \epsilon(\mathbf{w}) = \frac{1}{2} \lVert \hat{\mathbf{y}}(\mathbf{x}, \mathbf{w}) - \mathbf{y} \rVert^2
+\end{align*}
+Algorithms may include regularization terms to prevent overfitting, such as the L1 and L2 regularization terms, and the optimization is over Lagrangian.
+
 \subsection{Credit assignment and backpropagation}
 
 \section{Backpropagation derived using Lagrange multipliers}
@@ -425,20 +765,115 @@ Alternatively, in vectorized notation:
 
 \chapter{Recurrent Neural Networks}
 
-\section{Definitions}
-\subsection{Simple neural dynamic model}
-\subsection{Circuit equations for RNNs}
+\section{Circuit equations for RNNs}
+
+
+\subsection{The dynamics of a single neuron in a discrete time}
+Output of a neuron is given by:
+\[
+    s_i(t) = \phi(h_i(t))
+\]
+Point neuron (in time) is given by:
+\[
+    h_i(t + \bigtriangleup  t) = (1 - \bigtriangleup t) h_i(t) + \bigtriangleup t (\sum_{j=1}^N W_{ij} s_j(t) + u_ix(t))
+\]
+Where:
+\begin{itemize}
+    \item $h_i(t)$ is the membrane potential of the neuron $i$ at time $t$
+    \item $s_i(t)$ is the output of the neuron $i$ at time $t$
+    \item $\phi$ is the activation function
+    \item $W_{ij}$ is the weight of the connection to neuron $i$ from neuron $j$
+    \item $u_i$ is a vector of weights that connect the neuron to the external input
+    \item $x(t)$ is the external input at time $t$
+    \item $\bigtriangleup t$ is the time step
+    \item $N$ is the total number of neurons in the network
+\end{itemize}
+
+\subsection{The dynamics of a RNN in a continuous time}
+Consider a neural network with $N$ neurons with connectivity matrix $J \in \mathbb{R}^{N \times N}$, and external input $x(t) \in \mathbb{R}^N$.
+The dynamics of the network are given by:
+\[
+    \frac{dh_i(t)}{dt} = -h_i(t) + \sum_{j=1}^N J_{ij} \phi(h_j(t)) + w_i^{in} I(t)
+\]
+
+and the output of the network is given by:
+\[
+    z(t) = \sum_{j=1}^N \nu_j \phi(h_j(t))
+\]
+Where:
+\begin{itemize}
+    \item $w_i$ is the input weights vector of the neuron $i$
+    \item $h_j(t)$ is the membrane potential of the neuron $j$ at time $t$
+    \item $\phi$ is the activation function
+    \item $\nu_j$ is the readout weight of the neuron $j$
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figs/RNN.jpeg}
+    \caption{Recurrent Neural Network}
+    \label{fig:rnn}
+\end{figure}
+
 \subsection{Examples of tasks solved with RNNs}
 
 \section{Learning in RNNs}
-\subsection{Reservoir computing}
-\subsubsection{Open circuit}
-\subsubsection{Closed circuit (Echo/Liquid state machines)}
-\subsection{Recursive least squares (RLS)}
-\subsection{FORCE learning (RLS on the output function)}
+
+Recurrent Neural Networks (RNNs) exhibit rich dynamics suitable for sequential data processing. Training RNNs, however, poses challenges due to the recurrent feedback of errors, amplifying them and complicating convergence, as well as making the credit assignment problem more difficult.
+
+\subsection{Reservoir Computing}
+In reservoir computing, the network is trained using the error of a linear readout of the units. This approach avoids the difficulties of training the entire network by only adjusting the readout weights.
+
+\subsubsection{Open Circuit}
+In an open circuit configuration, the network's output is not fed back during learning, preventing the amplification of initial errors. 
+Instead, we make sure that we have the necessary ingredients to learn the output function by supplying the network with the desired output.
+The dynamics of the network is given by:
+\[
+    \frac{dh_i(t)}{dt} = -h_i(t) + \sum_{j=1}^N J_{ij} \phi(h_j(t)) + w_i^{in} I(t) + u_i f(t)
+\]
+Once the network has been trained, we stop feeding it the target.
+But without feeding the network with the target, the network is different from the one we trained.
+Luckily, we have a good estimate of the output function $f(t) \approx z(t)$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{Figs/RNN_open_circuit.jpeg}
+\caption{Open circuit training of RNNs.}
+\label{fig:rnn_learning}
+\end{figure}
+
+
+\subsubsection{Closed Circuit (Echo/Liquid State Machines)}
+In closed circuits, such as echo-state machines and liquid state machines, the output can be fed back into the network during training. However, this setup requires careful management of error amplification through network dynamics.
+
+\subsection{Recursive Least Squares (RLS)}
+Recursive Least Squares (RLS) is a fast algorithm for linear regression over sequential data, minimizing a weighted linear least squares cost function. It is particularly well-suited for scenarios where parameters must be rapidly adjusted in response to evolving data streams.
+
+\subsection{FORCE Learning (RLS on the Output Function)}
+First-Order Reduced and Controlled Error (FORCE) learning is a method that allows output errors to feedback into the network while keeping them small through rapid and effective weight modifications.
+
 \subsubsection{Derivation}
-\subsubsection{Recursive form of the accumulative covariance matrix}
-\subsubsection{Weights update rule}
+RLS for FORCE learning is derived by minimizing a regularized weighted least squares cost function that accounts for the error at each time step and incorporates a discounting factor for older signals.
+
+\subsubsection{Recursive Form of the Accumulative Covariance Matrix}
+The accumulative covariance matrix, essential for updating the weights in RLS, can be computed recursively, allowing for efficient updates as new data arrives.
+
+\subsubsection{Weights Update Rule}
+The weights in FORCE learning are updated using a recursive delta rule that considers the current readout, the desired output, and the previously computed error to adjust the readout weights incrementally.
+
+The application of these methods in RNNs allows for the robust handling of temporal sequences and has been successfully utilized in various tasks, demonstrating the versatility and power of RNNs in capturing temporal dynamics.
+
+\begin{figure}[ht]
+\centering
+% Placeholder for any figures related to the RNNs learning methods
+% \includegraphics[width=\textwidth]{path_to_figure.png}
+\caption{Illustration of RNN learning dynamics and methods.}
+\label{fig:rnn_learning}
+\end{figure}
+
+%
+%
+%
 
 \section{Cortical networks (motor cortex and prefrontal cortex)}
 \subsection{Dynamic system hypothesis}
