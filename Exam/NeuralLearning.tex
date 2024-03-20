@@ -819,10 +819,13 @@ Where:
 
 \section{Learning in RNNs}
 
-Recurrent Neural Networks (RNNs) exhibit rich dynamics suitable for sequential data processing. Training RNNs, however, poses challenges due to the recurrent feedback of errors, amplifying them and complicating convergence, as well as making the credit assignment problem more difficult.
+Recurrent Neural Networks (RNNs) exhibit rich dynamics suitable for sequential data processing. 
+Training RNNs, however, poses challenges due to the recurrent feedback of errors, amplifying them and complicating convergence, 
+as well as making the credit assignment problem more difficult.
 
 \subsection{Reservoir Computing}
-In reservoir computing, the network is trained using the error of a linear readout of the units. This approach avoids the difficulties of training the entire network by only adjusting the readout weights.
+In reservoir computing, the network is trained using the error of a linear readout of the units. 
+This approach avoids the difficulties of training the entire network by only adjusting the readout weights.
 
 \subsubsection{Open Circuit}
 In an open circuit configuration, the network's output is not fed back during learning, preventing the amplification of initial errors. 
@@ -838,13 +841,30 @@ Luckily, we have a good estimate of the output function $f(t) \approx z(t)$.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.6\textwidth]{Figs/RNN_open_circuit.jpeg}
-\caption{Open circuit training of RNNs.}
+\caption{Open circuit training of RNN.}
 \label{fig:rnn_learning}
 \end{figure}
 
 
 \subsubsection{Closed Circuit (Echo/Liquid State Machines)}
-In closed circuits, such as echo-state machines and liquid state machines, the output can be fed back into the network during training. However, this setup requires careful management of error amplification through network dynamics.
+In closed circuits, such as echo-state machines and liquid state machines, the output can be fed back into the network. 
+If the network is trained properly, there is little to no difference from the open circuit.
+The added solution is equivilent to a low-rank addition to $J_{ij}$.
+The dynamics of the network is given by:
+\begin{align*}
+    \frac{dh_i(t)}{dt} = -h_i(t) + \sum_{j=1}^N J_{ij} \phi(h_j(t)) + w_i^{in} I(t) + u_i z(t) = \\
+    -h_i(t) + \sum_{j=1}^N J_{ij} \phi(h_j(t)) + w_i^{in} I(t) + \sum_{j=1}^N u_i \nu_j \phi(h_j(t)) = \\
+    -h_i(t) + \sum_{j=1}^N (J_{ij} + u_i \nu_j) \phi(h_j(t)) + w_i^{in} I(t) = \\
+    -h_i(t) + \sum_{j=1}^N \tilde{J}_{ij} \phi(h_j(t)) + w_i^{in} I(t)
+\end{align*}
+Where: $\tilde{J}_{ij} = J_{ij} + u_i \nu_j$
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{Figs/RNN_closed_circuit.jpeg}
+\caption{Closed circuit RNN.}
+\label{fig:rnn_learning}
+\end{figure}
 
 \subsection{Recursive Least Squares (RLS)}
 Recursive Least Squares (RLS) is a fast algorithm for linear regression over sequential data, minimizing a weighted linear least squares cost function. It is particularly well-suited for scenarios where parameters must be rapidly adjusted in response to evolving data streams.
