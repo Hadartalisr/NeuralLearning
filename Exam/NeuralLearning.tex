@@ -867,13 +867,35 @@ Where: $\tilde{J}_{ij} = J_{ij} + u_i \nu_j$
 \end{figure}
 
 \subsection{Recursive Least Squares (RLS)}
-Recursive Least Squares (RLS) is a fast algorithm for linear regression over sequential data, minimizing a weighted linear least squares cost function. It is particularly well-suited for scenarios where parameters must be rapidly adjusted in response to evolving data streams.
+Recursive Least Squares (RLS) is a fast algorithm for linear regression over sequential data, 
+minimizing a weighted linear least squares cost function. 
+It is particularly well-suited for scenarios where parameters must be rapidly adjusted in response to evolving data streams.
 
 \subsection{FORCE Learning (RLS on the Output Function)}
-First-Order Reduced and Controlled Error (FORCE) learning is a method that allows output errors to feedback into the network while keeping them small through rapid and effective weight modifications.
+First-Order Reduced and Controlled Error (FORCE) learning is a method that allows output errors to feedback into the network while 
+keeping them small through rapid and effective weight modifications.
 
 \subsubsection{Derivation}
-RLS for FORCE learning is derived by minimizing a regularized weighted least squares cost function that accounts for the error at each time step and incorporates a discounting factor for older signals.
+RLS for FORCE learning is derived by minimizing a regularized weighted least squares cost function that accounts for the error at each time step 
+and incorporates a discounting factor for older signals.
+Consider an RNN with a readout that is defined at time t for every $t' < t$ as:
+\[
+    z(t') = \vec{w}(t) \cdot \vec{\phi} (h(t'))
+\]
+Given a sequence of signals $\{\vec{x}\}^t \subset \mathbb{R}^N$ we aim to learn weights $\vec{w}^*(t)$ that best approximate some target $f(t) = f(\{\vec{x}\}^t)$.
+The error at time t' is given by:
+\[
+    \epsilon(t') = f(t') - z(t')
+\]
+We will define the weighted least squares cost function as:
+\[
+    L(\vec{w}(t)) = \sum_{t'=1}^t \lambda^{t-t'} \epsilon^2(t') + \alpha \lambda^t \lVert \vec{w}(t) \rVert^2
+\]
+Where:
+\begin{itemize}
+    \item $0 \leq \lambda \leq 1$ is the discounting factor
+    \item $\alpha$ is the regularization parameter
+\end{itemize}
 
 \subsubsection{Recursive Form of the Accumulative Covariance Matrix}
 The accumulative covariance matrix, essential for updating the weights in RLS, can be computed recursively, allowing for efficient updates as new data arrives.
