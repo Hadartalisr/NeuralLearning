@@ -1,0 +1,73 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[margin=0.75in, top=0.75in, bottom=0.75in]{geometry}  % Reduce all margins
+\usepackage{color}
+\usepackage{float}
+\usepackage{hyperref}
+
+% Define colors
+\definecolor{myblue}{RGB}{0, 0, 128}
+\setlength{\parindent}{0pt}
+
+
+
+% Define code listing settings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    language=Python,
+}
+
+\title{Neural Learning - 76909 Problem Set 4}
+\author{Hadar Tal}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1 Weights intialization of a leaky ReLU network}
+
+Leaky ReLU is defined as:
+$    f(x) = \begin{cases}
+        x & \text{if } x \ge 0 \\
+        \alpha x & \text{otherwise}
+    \end{cases}
+    \label{eq:leaky_relu}
+$
+
+
+where $\alpha$ is a small positive constant. 
+
+for example, the integral between $-n$ and $n$ is:
+\begin{align*} 
+    & <y_{i}^l> = \int_{-\infty}^{\infty} f(h) P(h) dh \\
+    &= \int_{-\infty}^{0} \alpha h  P(h) dh + \int_{0}^{\infty} h P(h) dh \\
+    &= \alpha \int_{-\infty}^{0} h  P(h) dh + \int_{0}^{\infty} h P(h) dh \\
+    &= \alpha \int_{\infty}^{0} -h  P(-h) dh + \int_{0}^{\infty} h P(h) dh \\
+    &= \alpha \int_{0}^{\infty} h  P(-h) dh + \int_{0}^{\infty} h P(h) dh \\
+    &= \int_{0}^{\infty} h  (P(h) + \alpha P(h)) dh \\
+    &= \int_{0}^{\infty} h  (1 + \alpha) P(h) dh \\
+\end{align*}
+
+for example, the integral between $-n$ and $n$ for uniform distribution is:
+\begin{align*} 
+    & <y_{i}^l> = \int_{-n}^{n} f(h) P(h) dh \\
+    &= \int_{-n}^{0} \alpha h  P(h) dh + \int_{0}^{n} h P(h) dh \\
+    &= \int_{0}^{n} h P(h) dh - \alpha \int_{0}^{n} h  P(h) dh \\
+    &= (1 - \alpha)  \int_{0}^{n} h P(h) dh \\
+\end{align*}
+
+
+
+
+\end{document}

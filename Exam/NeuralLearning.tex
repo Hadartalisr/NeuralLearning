@@ -1,0 +1,505 @@
+\documentclass[11pt]{book} % or report
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsthm}
+\usepackage{tikz}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+
+
+\title{Summary of 76909 - Neural Learning}
+\author{Your Name Here}
+\date{Academic Year}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+\chapter{Mathematical Background}
+
+\section{Math notations}
+
+In this course, we adopt standard mathematical notations to maintain clarity and consistency. Scalars are denoted by lowercase or uppercase italic letters (e.g., \(a\), \(A\)), vectors by lowercase bold letters (e.g., \(\mathbf{v}\)), and matrices by uppercase bold letters (e.g., \(\mathbf{M}\)). The set of real numbers is represented by \(\mathbb{R}\), and \(\mathbb{R}^n\) denotes an \(n\)-dimensional vector space. Functions are represented as \(f(\cdot)\), and derivatives are denoted using the prime notation (e.g., \(f'(x)\)) or the \(\nabla\) symbol for gradients.
+
+The gradient of a function with respect to a variable, denoted as \(\frac{df}{dx}\), represents the rate of change of the function \(f\) with respect to the variable \(x\). This notation is predominantly used in the context of single-variable functions. In the realm of multivariable functions, the gradient is a vector of all partial derivatives, indicating the direction and rate of the steepest ascent in the function's value. The gradient is represented as \(\nabla f\) or \(\vec{\nabla} f\), where each component of the vector \(\nabla f = \left(\frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots, \frac{\partial f}{\partial x_n}\right)\) signifies the partial derivative of \(f\) with respect to each variable \(x_i\).
+
+The directional gradient, on the other hand, gives the rate of change of the function in a specific direction, represented by a unit vector \(\mathbf{u}\). It is calculated as the dot product of the gradient and the direction vector, denoted by \(\nabla_{\mathbf{u}} f = \nabla f \cdot \mathbf{u}\). This quantity measures how fast the function changes at a point in a given direction.
+
+The delta symbol (\(\Delta\)), often used to signify change or difference, is employed in various contexts in mathematics and physics. For instance, \(\Delta x\) represents a change in the variable \(x\), and \(\Delta f(x) = f(x_2) - f(x_1)\) denotes the change in the function \(f\) as the argument moves from \(x_1\) to \(x_2\). This notation is essential for describing finite differences, differences in quantities, and is fundamental to the concepts of differentiation and integration.
+
+
+\section{Vector and matrix derivatives of scalar functions}
+
+\subsection{Definitions}
+
+The derivative of a scalar function with respect to a vector, \(\nabla_{\mathbf{x}} f\), results in a vector of partial derivatives. Similarly, the derivative of a scalar function with respect to a matrix, \(\nabla_{\mathbf{X}} f\), yields a matrix where each element is the partial derivative of \(f\) with respect to the corresponding element in \(\mathbf{X}\).
+
+\subsection{Examples}
+
+For a function \(f(\mathbf{x}) = \mathbf{x}^T\mathbf{A}\mathbf{x} + \mathbf{b}^T\mathbf{x} + c\), where \(\mathbf{x}\) is a vector, \(\mathbf{A}\) is a matrix, \(\mathbf{b}\) is a vector, and \(c\) is a scalar, the gradient with respect to \(\mathbf{x}\) is \(\nabla_{\mathbf{x}} f(\mathbf{x}) = 2\mathbf{A}\mathbf{x} + \mathbf{b}\).
+
+\section{Probability}
+
+\subsection{Definitions}
+
+Probability theory provides a mathematical framework for quantifying uncertainty. A probability space is defined by a sample space, events within the sample space, and a probability measure that assigns probabilities to events.
+
+\subsection{Random variables}
+
+A random variable is a function that assigns a real number to each outcome in a sample space. The distribution of a random variable describes how probabilities are distributed over its possible values.
+
+\subsection{Gaussian (Normal) distribution}
+
+The Gaussian distribution is a continuous probability distribution characterized by its mean (\(\mu\)) and variance (\(\sigma^2\)). It is denoted as \(N(\mu, \sigma^2)\) and has the probability density function \(f(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\).
+
+\subsection{Central limit theorem (CLT)}
+
+The CLT states that, under certain conditions, the sum of a large number of independent, identically distributed random variables will be approximately normally distributed, regardless of the original distribution.
+
+\subsection{Correlation and covariance}
+
+Correlation and covariance are measures of how two random variables vary together. Covariance is defined as \(\text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]\), where \(E[\cdot]\) denotes the expected value. Correlation is the normalized version of covariance and provides a dimensionless measure of linear dependency.
+
+\subsection{Multi-variate Gaussian distribution}
+
+The multi-variate Gaussian distribution extends the Gaussian distribution to multiple dimensions, characterized by a mean vector \(\boldsymbol{\mu}\) and a covariance matrix \(\boldsymbol{\Sigma}\). It describes the distribution of a random vector and is crucial for modeling the joint distribution of multiple random variables.
+
+
+\section{Positive Definite and Positive Semi-Definite Matrices}
+
+
+\begin{definition}
+A symmetric matrix \(\mathbf{A} \in \mathbb{R}^{n \times n}\) is said to be \textit{Positive Definite} if for all non-zero vectors \(\mathbf{x} \in \mathbb{R}^n\), the following condition holds:
+\begin{equation}
+\mathbf{x}^T \mathbf{A} \mathbf{x} > 0.
+\end{equation}
+This implies that the quadratic form of \(\mathbf{A}\) is always positive for any non-zero vector \(\mathbf{x}\), indicating that \(\mathbf{A}\) has all positive eigenvalues.
+\end{definition}
+
+\begin{definition}
+A symmetric matrix \(\mathbf{A} \in \mathbb{R}^{n \times n}\) is considered \textit{Positive Semi-Definite} if for all vectors \(\mathbf{x} \in \mathbb{R}^n\), the following condition is satisfied:
+\begin{equation}
+\mathbf{x}^T \mathbf{A} \mathbf{x} \geq 0.
+\end{equation}
+This criterion implies that the quadratic form of \(\mathbf{A}\) is never negative for any vector \(\mathbf{x}\), indicating that \(\mathbf{A}\) has all non-negative eigenvalues.
+\end{definition}
+
+\begin{theorem}
+A symmetric matrix \(\mathbf{A} \in \mathbb{R}^{n \times n}\) is positive definite if and only if all its eigenvalues are positive.
+\end{theorem}
+
+
+\section{KKT conditions}
+\subsection{Definition}
+\subsection{Dual problem}
+
+\section{Smooth functions}
+\subsection{Definition by derivatives}
+\subsection{Definition by coefficients of Fourier transform}
+
+\section{Singular value decomposition (SVD)}
+\subsection{Definition}
+\subsection{Properties}
+\subsection{Applications}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\chapter{The Point Neuron}
+
+\section{A Learning system}
+\subsection{Supervised vs unsupervised learning vs reinforcement learning}
+
+%
+%
+%
+
+\subsection{Basic concepts in learning theory}
+
+%
+%
+%
+
+\subsection{The challenge of learning}
+\subsubsection{Trainability}
+The learning system's ability to arrive at the correct solution.
+
+\subsubsection{Expressibility (capacity)}
+The learning system's ability to represent complex functions.
+We can choose the model for a given problem some examples are:
+\begin{itemize}
+    \item Linear regression $y = \mathbf{w}^T \mathbf{x} = b$
+    \item Quadratic regression $y = \mathbf{w_2} \lVert \mathbf{x} \rVert^2 + \mathbf{w_1} \mathbf{x} + \mathbf{w_0}$
+    \item SVM
+    \item Neural networks 
+\end{itemize}
+
+\subsubsection{Generalization}
+\subsubsection{No free lunch theorem}
+
+%
+%
+%
+
+\section{Linear regression}
+\subsection{Definition of the problem}
+\begin{itemize}
+    \item $\vec{x} \in \mathbb{R}^N$ - the input vector
+    \item $y = \sum_{i=1}^{N} w_i x_i = \vec{w}^T \vec{x}$ - the output
+    \item The training set: $\{(\vec{x}^1, y^1), (\vec{x}^2, y^2), \ldots, (\vec{x}^P, y^P)\} = \{(\vec{x}^\mu, y^\mu)\}_{\,\mu=1}^{P}$
+    \item The training error of a single example (MSE): $\epsilon^\mu = (\hat{y}(\vec{x}^\mu, \vec{w}) - y^\mu)^2 = (\vec{w}^T \vec{x}^\mu - y^\mu)^2$
+    \item The average error of a training set: $E_{tr}(\vec{w}) = \frac{1}{P} \sum_{\mu=1}^{P} \epsilon^\mu = \frac{1}{P} \sum_{\mu=1}^{P} (\vec{w}^T \vec{x}^\mu - y^\mu)^2$
+    \item The generalization error: $E_{g}(\vec{w}) = \int P(\vec{x}) (\vec{w}^T \vec{x} - y(\vec{x}))^2 d\vec{x}$
+\end{itemize}
+
+%
+%
+
+\subsection{Points in general position}
+\begin{definition}
+A set of points in \(\mathbb{R}^n\) is said to be in \textit{general position} if no subset of \(m+1\) points lies in any \(m\)-dimensional hyperplane, for any \(m < n\). In simpler terms, in \(\mathbb{R}^2\) (the plane), points in general position means that no three points are collinear. Similarly, in \(\mathbb{R}^3\), no four points lie on the same plane. This concept extends to higher dimensions accordingly.
+\end{definition}
+
+%
+%
+
+\subsection{The optimal solution}
+
+We will define the (empirical) feature covariance matrix of the input as:
+\begin{align*}
+    \mathbf{C_{tr}} = \frac{1}{P} \sum_{\mu=1}^{P} \vec{x}^\mu (\vec{x}^\mu)^T \\
+    (\mathbf{C_{tr}})_{ij} = \frac{1}{P} \sum_{\mu=1}^{P} x_i^\mu x_j^\mu
+\end{align*}
+
+We will define the input-output covariance vector as:
+\begin{align*}
+    \vec{U_{tr}} = \frac{1}{P} \sum_{\mu=1}^{P} y^\mu \vec{x}^\mu \\
+    (\vec{U_{tr}})_i = \frac{1}{P} \sum_{\mu=1}^{P} y^\mu x_i^\mu
+\end{align*}
+
+The weights that achieve the minimal loss must satisfy $\nabla E_{tr}(\vec{w}) = 0$. 
+\begin{align*}
+    \nabla \left(\frac{1}{P} \sum_{\mu=1}^{P} (\vec{w}^T \vec{x}^\mu - y^\mu)^2\right) = 0 \quad \\
+    \Rightarrow \quad \frac{1}{P} \sum_{\mu=1}^{P} 2(\vec{w}^T \vec{x}^\mu - y^\mu) \vec{x}^\mu = 0 \\ 
+    \Rightarrow \frac{1}{P} \sum_{\mu=1}^{P} (\vec{w}^T \vec{x}^\mu) \cdot \vec{x}^\mu  - \frac{1}{P} \sum_{\mu=1}^{P} y^\mu \vec{x}^\mu = 0 \\
+    \Rightarrow \frac{1}{P} \sum_{\mu=1}^{P} \vec{x}^\mu (\vec{x}^\mu)^T \vec{w}  - \frac{1}{P} \sum_{\mu=1}^{P} y^\mu \vec{x}^\mu = 0 \\
+    \Rightarrow \mathbf{C_{tr}} \vec{w} - \vec{U_{tr}} = 0 \\
+\end{align*}
+
+Alternatively, in vectorized notation:
+\begin{align*}
+    \mathbf{X} &= (\vec{\mathbf{x}}_1, \vec{\mathbf{x}}_2, \ldots, \vec{\mathbf{x}}_P) \in \mathbb{R}^{N \times P}, \quad
+    \tilde{\mathbf{y}} = (y_1, y_2, \ldots, y_P) \in \mathbb{R}^P \\
+    \nabla_{\mathbf{w}} E_{\text{tr}} (\mathbf{w}) &= 0 \\
+    \frac{1}{P} \nabla_{\mathbf{w}} \lVert \mathbf{X}^T\mathbf{w} - \vec{\mathbf{y}} \rVert^2 &= 0 \\
+    \nabla_{\mathbf{w}} (\mathbf{X}^T\mathbf{w} - \vec{\mathbf{y}})^T (\mathbf{X}^T\mathbf{w} - \vec{\mathbf{y}}) &= 0 \\
+    \nabla_{\mathbf{w}} (\mathbf{w}^T\mathbf{X}\mathbf{X}^T\mathbf{w} + \vec{\mathbf{y}}^T\vec{\mathbf{y}} - 2\mathbf{w}^T\mathbf{X}\mathbf{Y}) &= 0 \\
+    2\mathbf{X}\mathbf{X}^T\mathbf{w} - 2\mathbf{X}\mathbf{Y} &= 0 \\
+\end{align*}
+
+\subsubsection{The solution for P $\geq$ N}
+
+\begin{theorem}
+    The matrix \(\mathbf{C_{tr}}\) is positive definite if the input vectors are in general position and \(P \geq N\).
+\end{theorem}
+
+\begin{proof}
+    \begin{align*}
+        \mathbf{C_{tr}} &= \frac{1}{P} \sum_{\mu=1}^{P} \vec{x}^\mu (\vec{x}^\mu)^T \\
+        \vec{v}^T \mathbf{C_{tr}} \vec{v} &= \frac{1}{P} \sum_{\mu=1}^{P} \vec{v}^T \vec{x}^\mu (\vec{x}^\mu)^T \vec{v} \\
+        &= \frac{1}{P} \sum_{\mu=1}^{P} (\vec{v}^T \vec{x}^\mu) (\vec{v}^T \vec{x}^\mu)^T \\
+        &= \frac{1}{P} \sum_{\mu=1}^{P} \lVert \vec{v}^T \vec{x}^\mu \rVert^2 \geq 0
+    \end{align*}
+\end{proof}
+
+\begin{theorem}
+    The optimal weights that minimize the training error are given by:
+    \begin{align*}
+        \mathbf{w}^* &= (\mathbf{X}\mathbf{X}^T)^{-1}\mathbf{X}\mathbf{Y} = \mathbf{C_{tr}}^{-1}\mathbf{U_{tr}}
+    \end{align*}
+\end{theorem}
+
+
+%
+
+\subsubsection{The solution for P $<$ N}
+
+\textcolor{red}{TODO}
+
+%
+%
+
+\subsection{Learning with noisy teacher}
+
+\textcolor{red}{The teacher provides noisy labels to the training set. The noise is modeled as a Gaussian distribution with zero mean and variance $\sigma^2$. The training error is now given by:}
+
+%
+%
+%
+
+
+\section{The point neuron}
+\subsection{The neuron model}
+\subsection{The binary perceptron}
+\subsection{The perceptron learning algorithm}
+\subsection{Geometrical interpretation on the learning}
+\subsection{Cover's theorem (no proof)}
+
+%
+%
+%
+
+
+\section{SVM}
+\subsection{The margin}
+\subsection{Uniqueness of the solution}
+\subsection{The SVM optimization problem}
+\subsubsection{The primal problem}
+\subsubsection{The dual problem}
+\subsection{Dot product solution}
+\subsection{Soft-margin SVM}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+\chapter{A Single Layer}
+
+\section{The Kernel Method}
+\subsection{The dot product solution of the SVM}
+\subsection{The XOR problem}
+\subsection{Nonlinear decision boundaries}
+\subsection{The kernel trick}
+\subsection{Mercer's theorem}
+\subsection{Common kernels}
+\subsubsection{Polynomial kernel}
+\subsubsection{Gaussian kernel}
+\subsubsection{Sigmoid kernel}
+\subsubsection{Admissible kernels}
+
+\section{The Cerebellum}
+\subsection{Cerebellar anatomy, physiology, and function}
+\subsubsection{Basic facts}
+\subsubsection{The cerebellum's function}
+\subsubsection{The cerebellum's anatomy}
+\subsubsection{The cerebellar circuit}
+\subsubsection{The cerebellar computational unit}
+\subsubsection{Divergence and convergence in the cerebellum}
+\subsection{Plasticity and learning in the cerebellum}
+\subsubsection{The Purkinje cell}
+\subsubsection{LTD and LTP in the Purkinje cell}
+\subsubsection{The Purkinje cell as a perceptron}
+\subsection{Marr-Albus theory for learning in the cerebellum}
+\subsubsection{Motor learning in the cerebellum}
+\subsubsection{Main points the theory explains}
+\subsubsection{Extensions to the perceptron theory}
+
+\section{Gradient-based Learning}
+\subsection{Batch learning}
+\subsection{Stochastic gradient descent (SGD)}
+\subsection{Online learning}
+\subsubsection{Analysis of online learning dynamics}
+\subsubsection{Dynamics of learning in a linear network}
+\subsubsection{Dynamics of the average}
+\subsubsection{Controlling the variance (learning rate)}
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+\chapter{Deep Neural Networks}
+
+\section{Multi-layered perceptrons vs the kernel method}
+
+\section{Definitions}
+\subsection{Structure}
+\subsection{Forward propagation (pass)}
+\subsection{Activation functions}
+\subsection{Loss functions}
+\subsection{Credit assignment and backpropagation}
+
+\section{Backpropagation derived using Lagrange multipliers}
+
+\section{Dynamics of learning in a linear network (no proof)}
+
+\section{Shallow networks}
+\subsection{Universal approximation theorem}
+\subsection{Barron's theorem}
+\subsection{The curse of dimensionality (Mhaskar)}
+
+%
+%
+%
+
+\section{Deep and shallow networks in the brain}
+
+\section{Why go deep?}
+\subsection{Expressivity}
+\subsubsection{Size efficiency of deep networks}
+\subsubsection{Exponential expressivity in deep networks}
+\subsubsection{Manifold disentanglement}
+\subsection{Trainability}
+\subsubsection{Sample complexity}
+\subsubsection{Training shallow vs deep networks}
+\subsubsection{The importance of a good initialization}
+\subsection{Generalization}
+\subsubsection{The overparameterized regime}
+\subsubsection{Why are deep networks good at generalization?}
+
+\section{Visual processing in the brain}
+\subsection{The visual pathway}
+\subsection{The visual cortex}
+\subsection{The receptive field}
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+\chapter{Recurrent Neural Networks}
+
+\section{Definitions}
+\subsection{Simple neural dynamic model}
+\subsection{Circuit equations for RNNs}
+\subsection{Examples of tasks solved with RNNs}
+
+\section{Learning in RNNs}
+\subsection{Reservoir computing}
+\subsubsection{Open circuit}
+\subsubsection{Closed circuit (Echo/Liquid state machines)}
+\subsection{Recursive least squares (RLS)}
+\subsection{FORCE learning (RLS on the output function)}
+\subsubsection{Derivation}
+\subsubsection{Recursive form of the accumulative covariance matrix}
+\subsubsection{Weights update rule}
+
+\section{Cortical networks (motor cortex and prefrontal cortex)}
+\subsection{Dynamic system hypothesis}
+\subsection{Motor cortex untangles muscles trajectory}
+\subsubsection{Supplementary motor area (SMA)}
+\subsection{Context-dependent integration in prefrontal cortex}
+\subsubsection{The prefrontal cortex}
+\subsubsection{Key ideas}
+\subsubsection{The experiment task, performance, and analysis}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+\chapter{Reinforcement Learning}
+
+\section{Definitions}
+\subsection{Markov decision process (MDP)}
+\subsection{Policy}
+\subsection{Value function}
+\subsection{Bellman equation}
+\subsection{Bellman optimality}
+
+\section{Pavlovian conditioning and the delta rule (Rescorla-Wagner)}
+
+\section{Temporal difference learning (TD)}
+\subsection{The TD error}
+\subsection{The TD learning rule}
+
+\section{Model-based methods}
+\subsection{Dynamic programming}
+\subsection{Value iteration}
+\subsection{Policy iteration}
+
+
+% Repeat the structure for chapters 2, 3, 4, and 5 following the provided structure
+
+\backmatter
+% Add any appendices or references here
+
+\end{document}
+
+
+
+
+
+
+
+        
+
