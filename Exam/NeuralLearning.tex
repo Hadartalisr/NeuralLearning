@@ -1458,10 +1458,101 @@ The linear framework of the Rescorla-Wagner model also struggles with complex, n
 
 
 \section{Definitions}
-\subsection{Markov decision process (MDP)}
-\subsection{Policy}
-\subsection{Value function}
+
+\begin{definition}[Markov decision process (MDP)]\ \\
+    A Markov Decision Process (MDP) is a tuple $(S, A, P_{s,a}(\cdot) , R_s(\cdot), \gamma)$, where:
+    \begin{itemize}
+        \item $S$ is the state space.
+        \item $A$ is the action space.
+        \item $P_{s,a}(\cdot)$ is the transition probability function, $P_{s,a}(s') = \mathbb{P}(s_{t+1} = s' | s_t = s, a_t = a)$.
+        \item $R_s(\cdot)$ is the reward function, $R_s(a) = \mathbb{E}[r_{t+1} | s_t = s, a_t = a]$.
+        \item $\gamma$ is the discount factor.
+    \end{itemize}    
+    
+\end{definition}
+
+\begin {definition}[Policy]\ \\
+    A policy $\pi$ is a mapping from state to probability distribution over actions, \\
+    $\pi(s, a) = \mathbb{P}(a_t = a | s_t = s)$.
+
+\end{definition}
+The sum of all future rewards may theoretically be infinite, for a reasonable maximimization problem in such cases we can consider a fixed horizon $T$.
+
+\begin {definition}[Expected return]\ \\
+    The goal of an agent is to find a policy that maximizes the expected return -
+    \begin{align*}
+        &G_t = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \quad &\text{where} \quad 0 \leq \gamma \leq 1 \\
+        \text{or} \quad &G_t = \sum_{k=1}^{T-t}  r_{t+k} \quad &\text{where} \quad 0 \leq \gamma \leq 1
+    \end{align*}
+\end{definition}
+
+
+\begin{definition}[Value function]\ \\
+    The value function $V^{\pi}(s)$ is the expected return starting from state $s$ and following policy $\pi$.
+    \begin{align*}
+        v^{\pi}(s) = \mathbb{E}_{\pi} \left[ G_t | s_t = s \right]
+    \end{align*}
+\end{definition}
+
+
+\begin{definition}[q function (value-action function)]\ \\
+    The Q function $q^{\pi}(s, a)$ is the expected return starting from state $s$, taking action $a$, and following policy $\pi$.
+    \begin{align*}
+        q^{\pi}(s, a) = \mathbb{E}_{\pi} \left[ G_t | s_t = s, a_t = a \right]
+    \end{align*}
+\end{definition}
+
+
 \subsection{Bellman equation}
+\begin{definition}[Bellman equation]\ \\
+    The Bellman equation for the value function is given by:
+    \begin{align*}
+        &v^{\pi}(s) = \mathbb{E}_{\pi} \left[ R_{t+1} + \gamma G_{t+1} | s_t = s \right] = \mathbb{E}_{\pi} \left[ R_{t+1} \right] + \gamma \mathbb{E} \left[ v^{\pi}(s_{t+1}) \right]  = \\
+        &\sum_{a \in A} \pi(s, a) \left[ R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v^{\pi}(s') \right] = \\
+        &\sum_{a \in A} \pi(s, a) q^{\pi}(s, a)
+    \end{align*}
+    The Bellman equation for the q function is given by:
+    \begin{align*}
+        q^{\pi}(s, a) = R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') \sum_{a' \in A} \pi(s', a') q^{\pi}(s', a')
+    \end{align*}
+\end{definition}
+
+\begin{figure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/bellman-value.png}
+        \caption{Value function.}
+        \label{fig:mdp}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/bellman-q.png}
+        \caption{Q function.}
+        \label{fig:mdp_graph}
+    \end{subfigure}
+    \label{fig:mdp}
+    \caption{Bellman equations}
+\end{figure}
+
+\begin{corollary}[Bellman equation (Matrix form)]\ \\
+    The Bellman equation can be written in matrix form as:
+    \begin{align*}
+        \vec{v}^{\pi} = \vec{R}^{\pi} + \gamma \mathcal{T}^{\pi} \vec{v}^{\pi}
+    \end{align*}
+    where:
+    \begin{itemize}
+        \item $\vec{v}^{\pi}$ is the value function vector (entry $i$ is the value of state $i$ under policy $\pi$).
+        \item $\vec{R}_s^{\pi} = \sum_{a \in A} \pi(s, a) R_s(a)$ is the expected reward vector for each state under policy $\pi$.
+        \item $\mathcal{T}_{ss'}^{\pi} = \sum_{a \in A} \pi(s, a) P_{s,a}(s')$ is the transition probability matrix under policy $\pi$.
+    \end{itemize}
+    And the solution is given by:
+    \begin{align*}
+        \vec{v}^{\pi} = (I - \gamma \mathcal{T} ^{\pi})^{-1} \vec{R}^{\pi}
+    \end{align*}
+
+\end{corollary}
+
+
 \subsection{Bellman optimality}
 
 
@@ -1473,6 +1564,10 @@ The linear framework of the Rescorla-Wagner model also struggles with complex, n
 \subsection{Dynamic programming}
 \subsection{Value iteration}
 \subsection{Policy iteration}
+
+\section{Model-free methods}
+\subsection{Policy Gradient}
+\subsection{REINFORCE}
 
 %
 %
