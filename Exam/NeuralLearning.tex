@@ -14,10 +14,13 @@
 \usepackage{pgfplots} % Add this line to import the pgfplots package
 
 
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[section]
 \newtheorem{claim}{claim}[section]
+\newtheorem{algorithm}{Algorithm}[section]
+
 
 
 \title{Summary of 76909 - Neural Learning}
@@ -124,6 +127,10 @@ Here are some common vector norms that are frequently used in the context of mac
     \item The infinity norm of a vector \(\mathbf{x} \in \mathbb{R}^n\) is given by \(\lVert \mathbf{x} \rVert_{\infty} = \max_{i} \lvert x_i \rvert\).
     \item The \textit{Frobenius norm} of a matrix \(\mathbf{A} \in \mathbb{R}^{m \times n}\) is defined as \(\lVert \mathbf{A} \rVert_F = \sqrt{\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij}^2}\).
 \end{itemize}
+
+\subsection{Cosine similarity and distance}
+
+\subsection{Binomial coefficients}
 
 %
 %
@@ -463,10 +470,192 @@ Alternatively, in vectorized notation:
 
 \section{The point neuron}
 \subsection{The neuron model}
+\begin{definition}[The neuron model]\ \\
+    Let $\vec{x} \in \mathbb{R}^N$ - input vector (it can be real values, binary (logic) or represent spikes), \\
+    $\vec{w} \in \mathbb{R}^N$ - weight vector (synaptic weights), \\  
+    $b \in \mathbb{R}$ - bias, \\
+    $\phi : \mathbb{R} \rightarrow \mathbb{R}$ - activation function. \\
+    then the output of the neuron is given by:
+    \begin{align}
+        y = \phi(\vec{w}^T \vec{x} + b)
+    \end{align}
+\end{definition}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.3\textwidth]{Figs/point_neuron.jpeg}
+    \caption{The neuron model}
+    \label{fig:neuron_model}
+\end{figure}
+
+
+\subsection{Activation functions}
+\subsubsection{Deterministic activation functions}
+\begin{itemize}
+    \item Linear activation function: $\phi(x) = \alpha x, \mathbb{R} \rightarrow \mathbb{R}$ (gives inear regression)
+    \item Sigmoidal function - non-linear, bounded from below and above. e.g.,: 
+    \begin{itemize}
+        \item The sigmoid function (logistic) : $\phi(x) = \frac{1}{1 + e^{-x}}, \mathbb{R} \rightarrow (0, 1)$
+        \item The hyperbolic tangent function: $\phi(x) = \tanh(x) , \mathbb{R} \rightarrow (-1, 1)$     
+    \end{itemize}
+    \item Threshold function: 
+    \begin{itemize}
+        \item Binary (heaviside) function: $\phi(x) = \begin{cases} 1, & \text{if } x \geq 0 \\ 0, & \text{if } x < 0 \end{cases}$ or $\phi(x) = sign(x) , \mathbb{R} \rightarrow \{-1, 1\}$
+        \item The rectified linear unit (ReLU): $\phi(x) = \max(0, x) , \mathbb{R} \rightarrow [0, \infty)$ 
+            The ReLY can be thought of the firing rate of a neuron (which can not be negative).
+        \item The leaky ReLU: $\phi(x) = \max(\alpha x, x), \alpha \in (0, 1), \mathbb{R} \rightarrow (-\infty, \infty)$
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{Figs/activation_functions.png}
+    \caption{Activation functions}
+\label{fig:activation_functions}
+\end{figure}
+
+\subsubsection{Stochastic activation functions}
+Demonstrate neuron that fire with some probability.
+For example, The stochastic binary neuron: $\phi(x) = \begin{cases} 1 & \text{with probability } \frac{1}{1 + e^{-ax}} \\ 0 & \text{with probability } o.w \end{cases}$
+    
+\subsubsection{A spiking neuron}
+Spiking neurons are more biological models of neurons which output a sequence of spikes over time, known as a spike train. The spike train can be mathematically described as follows:
+\[
+y(t) = \sum_k \delta(t_k - t),
+\]
+where \( y(t) \) is the output spike train at time \( t \), \( \delta \) represents the Dirac delta function, and \( t_k \) are the spike times. This formula sums up impulses at each spike time, creating a spike train.
+
+The variables in the equation are characterized as:
+\begin{itemize}
+    \item \( \delta(t_k - t) \): Dirac delta function, which is 0 everywhere except at \( t = t_k \), where it is infinitely high with an integral of 1 over the entire real line, representing a spike at time \( t_k \).
+    \item \( t_k \): The specific times at which the neuron fires a spike.
+\end{itemize}
+
+The output of the neuron can be considered through different models:
+\begin{itemize}
+    \item Inhomogeneous Poisson: The spikes are generated from a Poisson process with a rate parameter \( \lambda = ah \), meaning that the probability of a spike occurring in an infinitesimally small time window \( dt \) is \( \lambda dt = ahd\). Here, \( \lambda \) is not constant but may vary with \( h \), the input to the neuron.
+    \item Integrate and fire: This model captures the behavior of a neuron that fires when its membrane potential crosses a specific threshold.
+    \item HH neurons: Referring to the Hodgkin-Huxley model, will not be covered.
+\end{itemize}
+
+
+%
+% 
+
 \subsection{The binary perceptron}
+
+\begin{definition}[The binary perceptron]
+    The binary perceptron is a neuron model with a binary threshold activation function. The output of the binary perceptron is given by:
+    \begin{align}
+        \hat{y}(x|w,b) = sign(\vec{w}^T \vec{x} + b) \in \{-1, 1\}
+    \end{align}
+\end{definition}
+For a given set of inputs $\{\vec{x}^\mu, y^\mu\}_{\mu=1}^{P}$, we want to find $w^*$ and $b^*$ that will hold 
+\begin{align}
+    \hat{y}(\vec{x}^\mu|w^*,b^*) = y^\mu, \quad \forall \mu
+\end{align}
+From a geometrical point of view, the binary perceptron is a linear classifier that separates the input space into two regions. 
+The decision boundary is a hyperplane defined by $\vec{w}^T \vec{x} + b = 0$.
+We ant all the projections of $\vec{x}^\mu$ on the hyperplane to be positive for $y^\mu = 1$ and negative for $y^\mu = -1$.
+
+\begin{figure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/binary_hyperplane.png}
+        \caption{The separation hyperplane of the binary perceptron}
+    \label{fig:binary_perceptron}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/perceptron_2d.png}
+        \caption{The binary perceptron in 2D}
+    \label{fig:binary_perceptron2}
+    \end{subfigure}
+\end{figure}
+
+We can simplify the problem by setting $b = 0$ and adding a constant input $x_0 = 1$ to the input vector $\vec{x}$, and now $w_0 = b$.
+This simple perceptron makes a linear separation of the input space, and it can solve only linearly separable problems - 
+For example, the XOR problem can not be solved by a single perceptron.
+
+
 \subsection{The perceptron learning algorithm}
-\subsection{Geometrical interpretation on the learning}
+For a given set of inputs $\{\vec{x}^\mu, y^\mu\}_{\mu=1}^{P}$, we assume that the data is linearly separable.
+\begin {algorithm}[The perceptron learning algorithm]\ \\
+For t= 1, 2, ... until convergence do:
+\begin{itemize}
+    \item Choose a random example $(\vec{x}^t, y^t)$
+    \item If $y^t \neq sign((\vec{w}^t)^T \vec{x}^t)$, update the weights:
+    \begin{align*}
+        \vec{w}^{t+1} &\leftarrow \vec{w}^t + \bigtriangleup \vec{w}^{t+1} \\
+        \bigtriangleup \vec{w}^{t+1} &= \eta y^t \vec{x}^t
+    \end{align*}
+where $\eta$ is the learning rate.
+\end{itemize}
+\end{algorithm}
+
+
+\begin{corollary}[Update rule of the weights]
+    \begin{align}
+        \bigtriangleup \vec{w}^t = \eta y^t \vec{x}^t \Theta (-y^t (\vec{w}^{t-1})^T \vec{x}^t)
+    \end{align}
+where $\Theta$ is the Heaviside step function defined as:
+\[
+    \Theta(x) = \begin{cases} 1, & \text{if } x > 0 \\ 0, & \text{if } x \leq 0 \end{cases}
+\]
+\end{corollary}
+
+\begin{corollary}[Hebbian learning rule]
+The perceptron learning algorithm is a form of Hebbian learning, where the weights are updated based on the correlation between the input and the output.
+If the pre and the post synaptic neurons fire together, then the synapse between them is strengthened.
+\[
+    \bigtriangleup \vec{w}^t = \eta \frac{1}{2} (1 - y^t (\vec{w}^{t-1})^T \vec{x}^t) y^t \vec{x}^t = \frac{\eta}{2} (y^t -\hat{y}^t) \vec{x}^t = - \eta \epsilon^t \vec{x}^t
+\]
+where $\epsilon^t = \frac{1}{2} (y^t -\hat{y}^t)$ is the error of the perceptron (the error is signed) and because $y^t \in \{-1, 1\}$, the error is 0 if the perceptron is correct 
+and otherwise it is equal to the sign of the correct label.
+\end{corollary}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{Figs/PerceptronUpdate.png}
+    \caption{Illustration of a Perceptron update. \\ 
+    (Left:) The hyperplane defined by $w_t$ misclassifies one red (-1) and one blue (+1) point. \\
+    (Middle:) The red point x is chosen and used for an update. Because its label is -1 we need to subtract x from $w_t$. \\
+    (Right:) The udpated hyperplane $w_{t+1}=w_t-x$ separates the two classes and the Perceptron algorithm has converged.}
+    \label{fig:perceptron_learning}
+\end{figure}
+
+
+%
+% 
+
 \subsection{Cover's theorem (no proof)}
+We have seen that simple perceptron can lean to perfoem linear binary separation given a set of P samples. 
+But how large can P be? Intuitively, this maximum number of samples should depend on the dimensionality of the input space N.
+
+\begin{definition}[Dichotomy]\ \\
+    A dichotomy of a set of points is a partition of the set into two subsets.
+\end{definition}
+
+\begin{theorem}[Cover's theorem]
+    Let $\{x^1, x^2, \ldots, x^P\}$ be a set of P points in $\mathbb{R}^N$ in general position. 
+    The number of dichotomies that can be performed using a hyperplane that goes through the origin is given by:
+    \begin{align}
+        C(P,N) = 2 \sum_{k=0}^{N-1} \binom{P-1}{k}
+    \end{align}
+\end{theorem}
+
+\begin{corollary}[The consequences of Cover's theorem]
+    The number of dichotomies grows exponentially with the number of samples P, increasing much faster than but the number of linearly separable dichotomies.
+    Exmaples: 
+    \begin{itemize}    
+        \item For P $\leq$ N, the number of dichotomies is $C(P,N) = 2^P$
+        \item for P = 2N, the number of dichotomies is $C(2N,N) = \frac{1}{2} 2^{P}$
+        \item For P $\gg$ N, the number of dichotomies is $C(P,N) \approx P^N$
+    \end{itemize}
+\end{corollary}
+    
+    
 
 %
 %
@@ -475,11 +664,49 @@ Alternatively, in vectorized notation:
 
 \section{SVM}
 \subsection{The margin}
+
+\begin{definition}[The margin of a point]\ \\
+    The margin of a point $\vec{x}^\mu$ is the normalized distance from the point to the separating hyperplane:
+    \begin{align}
+        \delta^\mu(\vec{w}) = \frac{1}{|w|} y^\mu \vec{w}^T \vec{x}^\mu
+    \end{align}
+\end{definition}
+
+\begin{definition}[The margin of the perceptron]\ \\
+    The margin of the perceptron is the minimum margin of all the points:
+    \begin{align}
+        \delta(\vec{w}) = \min_{\mu} \delta^\mu(\vec{w}) = \frac{1}{|w|} \min_{\mu} y^\mu \vec{w}^T \vec{x}^\mu
+    \end{align}
+\end{definition}
+
+%
+%
+
 \subsection{Uniqueness of the solution}
+
+%
+%
+
 \subsection{The SVM optimization problem}
+
+%
+%
+
 \subsubsection{The primal problem}
+
+%
+%
+
 \subsubsection{The dual problem}
+
+%
+%
+
 \subsection{Dot product solution}
+
+%
+%
+
 \subsection{Soft-margin SVM}
 
 %
@@ -686,21 +913,7 @@ The differences between the kernel method and multi-layered perceptrons:
 \end{tikzpicture}
 
 \subsection{Activation functions}
-Typical activation functions include:
-\begin{itemize}
-    \item The sigmoid function (logistic) : $\phi(x) = \frac{1}{1 + e^{-x}}, \mathbb{R} \rightarrow (0, 1)$
-    \item The hyperbolic tangent function: $\phi(x) = \tanh(x) , \mathbb{R} \rightarrow (-1, 1)$
-    \item The rectified linear unit (ReLU): $\phi(x) = \max(0, x) , \mathbb{R} \rightarrow [0, \infty)$
-    \item The leaky ReLU: $\phi(x) = \max(\alpha x, x), \alpha \in (0, 1), \mathbb{R} \rightarrow (-\infty, \infty)$
-\end{itemize}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\linewidth]{Figs/activation_functions.png}
-    \caption{Activation functions}
-\label{fig:activation_functions}
-\end{figure}
-
+Same as the point neuron, the activation function can be any non-linear function.
 
 \subsection{Loss functions}
 The quadratic loss function is given by:
@@ -921,6 +1134,8 @@ The minimum of L w.r.t $\vec{w}(t)$ is given by:
 \end{align*}
 
 This approach entails inverting the matrix M numerically every time step, which can be computationally expensive.
+We can see that we get similar result to Linear Regression solution but with a discounting factor, 
+where $M(t)$ behaves like the feature covariance matrix $C_{tr}$ and $u(t)$ behaves like the input-output covariance vector $\vec{U_{tr}}$.
 
 \subsubsection{Recursive Form of the Accumulative Covariance Matrix}
 The accumulative covariance matrix, essential for updating the weights in RLS, can be computed recursively, allowing for efficient updates as new data arrives.
@@ -1029,7 +1244,9 @@ then the update rule for $P$ is given by:
 \subsection{Policy iteration}
 
 
-% Repeat the structure for chapters 2, 3, 4, and 5 following the provided structure
+\chapter{Things that were not covered}
+
+\section{Convergence of the perceptron learning algorithm}
 
 \backmatter
 % Add any appendices or references here
