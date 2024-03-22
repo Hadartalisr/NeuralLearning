@@ -872,8 +872,10 @@ minimizing a weighted linear least squares cost function.
 It is particularly well-suited for scenarios where parameters must be rapidly adjusted in response to evolving data streams.
 
 \subsection{FORCE Learning (RLS on the Output Function)}
-First-Order Reduced and Controlled Error (FORCE) learning is a method that allows output errors to feedback into the network while 
-keeping them small through rapid and effective weight modifications.
+FORCE (First-Order Reduced and Controlled Error) learning is a closed-circuit training method for RNNs. 
+In this approach, the output of the network can be fed back as input during the training process. 
+Unlike open-circuit models, which do not feed the output back into the network during training,
+FORCE learning leverages the feedback to adjust the synaptic weights quickly and effectively, reducing the magnitude of the output error. 
 
 \subsubsection{Derivation}
 RLS for FORCE learning is derived by minimizing a regularized weighted least squares cost function that accounts for the error at each time step 
@@ -893,25 +895,87 @@ We will define the weighted least squares cost function as:
 \]
 Where:
 \begin{itemize}
-    \item $0 \leq \lambda \leq 1$ is the discounting factor
+    \item $0 < \lambda \leq 1$ is the discounting factor
     \item $\alpha$ is the regularization parameter
 \end{itemize}
 
+The minimum of L w.r.t $\vec{w}(t)$ is given by:
+
+\begin{align*}
+   &0 = \frac{\partial L}{\partial {w_i}} = 2 \sum_{t'=1}^t \lambda^{t-t'} \epsilon(t') \frac{\partial \epsilon(t')}{\partial w_i} + 2 \alpha \lambda^t {w_i}(t) \\
+   &(
+        \frac{\partial \epsilon(t')}{\partial {w_i}} = 
+        \frac{\partial f(t')}{\partial {w_i}} - \frac{\partial z(t')}{\partial {w_i}} =
+        - \frac{\partial z(t')}{\partial {w_i}} =
+        - \phi_i (t')
+    ) \\
+   &0 = - \sum_{t'=1}^t \lambda^{t-t'} \epsilon(t') \phi_i(t') + \alpha \lambda^t w_i(t) \\
+   &0 = - \sum_{t'=1}^t \lambda^{t-t'} (f(t') - z(t')) \phi_i(t') + \alpha \lambda^t w_i(t) \\
+   &0 = - \sum_{t'=1}^t \lambda^{t-t'} (f(t') - \vec{w}(t) \cdot \vec{\phi}(t')) \phi_i(t') + \alpha \lambda^t w_i(t) \\
+   &0 = - \sum_{t'=1}^t \lambda^{t-t'} f(t') \phi_i(t') + \sum_{t'=1}^t \lambda^{t-t'} \sum_{j=1}^N w_j(t) \phi_j(t') \phi_i(t') + \alpha \lambda^t w_i(t) \\
+   &\sum_{t'=1}^t \lambda^{t-t'} f(t') \phi_i(t') = \sum_{j=1}^N  \left[ \sum_{t'=1}^t \lambda^{t-t'} \phi_j(t') \phi_i(t') + \alpha \lambda^t \delta_{ij} \right] w_j^*(t) \\
+   &(M_{ij}(t) \stackrel{\text{def}}{=}   \sum_{t'=1}^t \lambda^{t-t'} \phi_j(t') \phi_i(t') + \alpha \lambda^t \delta_{ij}
+   & {u_i}(t) \stackrel{\text{def}}{=}   \sum _{t'=1}^t \lambda^{t-t'} f(t') \phi_i(t')) \\
+   &\sum _{j=1}^N M_{ij}(t) w_j^*(t) = u_i(t) \\
+   &M(t) \vec{w}^* = \vec{u}(t) \rightarrow \vec{w}^* = (M(t))^{-1} \vec{u}(t)
+\end{align*}
+
+This approach entails inverting the matrix M numerically every time step, which can be computationally expensive.
+
 \subsubsection{Recursive Form of the Accumulative Covariance Matrix}
 The accumulative covariance matrix, essential for updating the weights in RLS, can be computed recursively, allowing for efficient updates as new data arrives.
+In the recursive form, the accumulative covariance matrix is given by:
+\begin{align*}
+    M_{ij}(t) = \sum_{t'=1}^t \lambda^{t-t'} \phi_i(t') \phi_j(t') =  \sum_{t'=1}^{t-1} \lambda^{t-t'} \phi_i(t') \phi_j(t') + \phi_i(t) \phi_j(t) \\
+    {u_i}(t) = \sum _{t'=1}^t \lambda^{t-t'} f(t') \phi_i(t') = \sum _{t'=1}^{t-1} \lambda^{t-t'} f(t') \phi_i(t') + f(t) \phi_i(t)
+\end{align*}
+In the matrix form, the recursive update rule for the accumulative covariance matrix is given by:
+\begin{align*}
+    M(t) = \lambda M(t-1) + \vec{\phi}(t) \vec{\phi}(t)^T \\
+    \vec{u}(t) = \lambda \vec{u}(t-1) + f(t) \vec{\phi}(t)
+\end{align*}
+
+We will define $P(t) \stackrel{\text{def}}{=} M^{-1}(t)$ and we will have:
+\begin{align*}
+    M^{-1}(t) =  P(t) = \frac{1}{\lambda} \left[ P(t-1) - \frac{P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right]
+\end{align*}
 
 \subsubsection{Weights Update Rule}
 The weights in FORCE learning are updated using a recursive delta rule that considers the current readout, the desired output, and the previously computed error to adjust the readout weights incrementally.
 
-The application of these methods in RNNs allows for the robust handling of temporal sequences and has been successfully utilized in various tasks, demonstrating the versatility and power of RNNs in capturing temporal dynamics.
+We will define the $\mathbf{gain-paramter} \quad \vec{k}(t)$ as 
+\begin{align*}
+    \vec{k}(t) \stackrel{\text{def}}{=} \frac{P(t-1) \vec{\phi}(t)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)}
+\end{align*}
+and is holds that $\vec{k}(t) = P(t) \vec{\phi}(t)$, proof:
+\begin{align*}
+    &P(t) \vec{\phi}(t) = \frac{1}{\lambda} \left[ P(t-1) - \frac{P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right] \vec{\phi}(t) \\
+    &= \frac{1}{\lambda} \left[ P(t-1) \vec{\phi}(t) - \frac{P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right] \\
+    &= \frac{1}{\lambda} \left[ \frac{\lambda P(t-1) \vec{\phi}(t) + P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1) \vec{\phi}(t) - P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1) \vec{\phi}(t) } {\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right] = \\ 
+    &= \frac{1}{\lambda} \left[ \frac{\lambda P(t-1) \vec{\phi}(t)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right] 
+    = \frac{P(t-1) \vec{\phi}(t)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} = \vec{k}(t)
+\end{align*}
 
-\begin{figure}[ht]
-\centering
-% Placeholder for any figures related to the RNNs learning methods
-% \includegraphics[width=\textwidth]{path_to_figure.png}
-\caption{Illustration of RNN learning dynamics and methods.}
-\label{fig:rnn_learning}
-\end{figure}
+The weights update rule is given by:
+\begin{align*}
+    \vec{w}^*(t) &= P(t) \vec{u}(t) \\
+    &= P(t) \left[ \lambda \vec{u}(t-1) + f(t) \vec{\phi}(t) \right] \\
+    &= \lambda P(t) \vec{u}(t-1) + f(t) \vec{k}(t) \\ 
+    &= \left( P(t-1) - \frac{P(t-1) \vec{\phi}(t) \vec{\phi}(t)^T P(t-1)}{\lambda + \vec{\phi}(t)^T P(t-1) \vec{\phi}(t)} \right) \vec{u}(t-1) + f(t) \vec{k}(t) \\ 
+    &= P(t-1) \vec{u}(t-1) - \vec{k}(t) \vec{\phi}(t)^T P(t-1) \vec{u}(t-1) + f(t) \vec{k}(t) \\
+    &= \vec{w}^*(t-1) + k(t) \left[ f(t) - \vec{\phi}(t)^T \vec{w}^*(t-1) \right] \Longrightarrow \\
+    \vec{w}^*(t) &= \vec{w}^*(t-1) + k(t) \left[ f(t) - \vec{\phi}(t)^T \vec{w}^*(t-1) \right] \\
+    &= \vec{w}^*(t-1) + k(t) \left[ f(t) - z_{-} (t) \right]
+\end{align*}
+
+where $z_{-} (t) = \vec{\phi}(t)^T \vec{w}^*(t-1)$ is the predicted output at time $t$, before updating the weights.
+
+If we consider the case where the case where $\vec{w}^{t+1} = \vec{w}^t + (f^t - z^t) P^t \vec{\phi}^t $, 
+and the update rule for $P$ (the accumulative inverse correlation matrix) is given by $(P^{t+1})^{-1} = (P^t)^{-1}  + \vec{\phi}^t (\vec{\phi}^{t})^T$,
+then the update rule for $P$ is given by:
+\begin{align*}
+    P^{t+1} = P^t - \frac{P^t \vec{\phi}^t (\vec{\phi}^t)^T P^t}{1 + (\vec{\phi}^t)^T P^t \vec{\phi}^t}
+\end{align*}
 
 %
 %
