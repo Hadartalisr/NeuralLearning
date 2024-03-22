@@ -1353,6 +1353,107 @@ then the update rule for $P$ is given by:
 
 \chapter{Reinforcement Learning}
 
+\section{Pavlovian conditioning and the delta rule (Rescorla-Wagner)}
+
+\subsection{Pavlovian Conditioning}
+
+Pavlovian conditioning, also known as classical conditioning, was first described by Ivan Pavlov in 1904, earning him the Nobel Prize. 
+The fundamental concept involves pairing a neutral stimulus, known as the conditioned stimulus (CS), with an unconditioned stimulus (US) that naturally triggers a response. 
+Over time, the conditioned stimulus alone is able to evoke a similar response.
+Before training, the US alone provokes an unconditioned response, while the CS does not. During training, the CS and US are presented together, leading to the conditioned response after training when the CS is presented alone.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{./Figs/pavlov.jpeg}
+\caption{Pavlovian conditioning.}
+\label{fig:pavlovian_conditioning}
+\end{figure}
+
+%
+%
+%
+
+\subsection{The Rescorla-Wagner Model}
+The Rescorla-Wagner model, introduced in 1972, provides a formal framework to predict the strength of learning and conditioning based on stimulus presentation. It is encapsulated by the delta rule, which is expressed mathematically as:
+\begin{equation}
+    \Delta w_i = \eta \delta s_i \quad \text{where} \quad \delta = u - r
+\end{equation}
+Here, 
+\begin{itemize}
+    \item \( r = \sum_i s_i w_i \) (response) represents the linear prediction of an unconditioned stimulus based on the conditioned stimuli
+    \item \( w_i \) denotes the weight or strength of association of the \( i \)-th CS with the US
+    \item u signifies the actual unconditioned stimulus 
+    \item \( \delta \) signifies the prediction error 
+    \item \( \eta \) is the learning rate. 
+\end{itemize}
+
+The key findings from experiments using this model include:
+\begin{itemize}
+    \item \textbf{Acquisition:} The strength of the CS-US association increases over conditioning trials.
+    \item \textbf{Extinction:} If the CS is presented without the US in subsequent trials, the conditioned response gradually weakens.
+    \item \textbf{Partial Reinforcement:} A CS presented with and without the US intermittently leads to a slower acquisition but a more resilient response.
+    \item \textbf{Overshadowing:} If two CSs are presented together with the US, the stronger CS will acquire a greater association with the US.
+    \item \textbf{Blocking:} If a CS is established as a predictor of the US, introducing a second CS does not lead to association with the US.
+    \item \textbf{Inhibitory Conditioning:} A CS can be associated with the absence of a US, leading to a conditioned response of reduced probability.
+    \item \textbf{Secondary Conditioning:} A CS associated with the US can in turn be used to condition another neutral stimulus.
+\end{itemize}
+
+These principles demonstrate that the Rescorla-Wagner model is a powerful tool for understanding basic learning processes, but it is not without limitations. The model does not fully account for more complex behaviors observed in associative learning, such as higher-order conditioning, where associations are built between stimuli without direct reinforcement. The linear framework of the Rescorla-Wagner model also struggles with complex, non-stationary environments where actions alter the state of the environment.
+
+\begin{figure}[ht]
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/acquisiton_exp.jpeg}
+        \caption{Acquisition.}
+        \label{fig:rescorla_wagner}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/extinction_exp.jpeg}
+        \caption{Extinction.}
+        \label{fig:overshadowing}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/partial_exp.jpeg}
+        \caption{Partial reinforcement.}
+        \label{fig:blocking}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/overshadow_exp.png}
+        \caption{Overshadowing.}
+        \label{fig:rescorla_wagner}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/blocking_exp.jpeg}
+        \caption{blocking.}
+        \label{fig:overshadowing}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/inhibitory_exp.jpeg}
+        \caption{Inhibitory conditioning.}
+        \label{fig:blocking}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/secondary_exp.jpeg}
+        \caption{Secondary conditioning.}
+        \label{fig:blocking}
+    \end{subfigure}
+    \label{fig:rescorla_wagner}
+    \caption{Rescorla-Wagner model and associated phenomena.}
+\end{figure}
+
+%
+%
+%
+%
+%
+
+
 \section{Definitions}
 \subsection{Markov decision process (MDP)}
 \subsection{Policy}
@@ -1360,7 +1461,6 @@ then the update rule for $P$ is given by:
 \subsection{Bellman equation}
 \subsection{Bellman optimality}
 
-\section{Pavlovian conditioning and the delta rule (Rescorla-Wagner)}
 
 \section{Temporal difference learning (TD)}
 \subsection{The TD error}
@@ -1371,6 +1471,22 @@ then the update rule for $P$ is given by:
 \subsection{Value iteration}
 \subsection{Policy iteration}
 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
 \chapter{Things that were not covered}
 
