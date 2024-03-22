@@ -13,7 +13,8 @@
 \usetikzlibrary{positioning}
 \usepackage{pgfplots} % Add this line to import the pgfplots package
 
-
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{definition}{Definition}[section]
@@ -678,31 +679,158 @@ But how large can P be? Intuitively, this maximum number of samples should depen
         \delta(\vec{w}) = \min_{\mu} \delta^\mu(\vec{w}) = \frac{1}{|w|} \min_{\mu} y^\mu \vec{w}^T \vec{x}^\mu
     \end{align}
 \end{definition}
+We can see that our perceptron learning algorithm updates the weights if the margin is negative (that is, if the point is misclassified), 
+and that every update increases the norm of the weights, so to normalize the margin we need to normalize the weights. \\
+We can think of a the case where we want each point to have a margin ball of at least $\kappa$ and in that case the update rule will be:
 
-%
-%
+\begin{align}
+    \bigtriangleup \vec{w}^t = \eta \Theta(\kappa - \frac{ y^t \vec{w}^T \vec{x}^t}{|w|}) y^t \vec{x}^t = \eta \Theta(\kappa - \delta^t(w)) y^t \vec{x}^t
+\end{align}
 
-\subsection{Uniqueness of the solution}
+Our optimal solution $w^*$ will be the one that maximizes the margin, i.e., 
+\[ 
+    w^* = \operatorname*{argmax}_{w} \delta(w) = \operatorname*{argmax}_{w} \frac{1}{|w|} \min_{\mu \in [P]} y^\mu \vec{w}^T \vec{x}^\mu 
+\] 
+
+\begin{theorem}[Uniqueness of the solution (Vapnik, 1998)]\ \\
+    The solution of the SVM optimization problem is unique.
+\end{theorem}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figs/svm.png}
+    \caption{Max margin Linear classifier}
+    \label{fig:margin}
+\end{figure}
 
 %
 %
 
 \subsection{The SVM optimization problem}
 
-%
-%
-
 \subsubsection{The primal problem}
+
+What we want to do is maximize the margin. However, as we have seen before, there is some duality between the margin and the norm of the weights.
+Since on our measure of distance, we are normalizing by the norm, we can choose any norm that we would like. So we will choose it to be the inverse of the minimal margin
+\begin{equation}
+    \lVert w \rVert = \frac{1}{\delta}  
+\end{equation}
+
+Where \( \delta = \delta(w) = \min_{\mu} y^{\mu}w^T x^{\mu} \). So, for points on the minimal margin we have
+\begin{equation}
+    \delta = \frac{y^{\mu}w^T x^{\mu}}{\lVert w \rVert} = \delta y^{\mu}w^T x^{\mu}  
+\end{equation}
+or
+\begin{equation}
+    y^{\mu}w^T x^{\mu} = 1 
+\end{equation}
+
+Similarly, for points further from the hyperplane than the minimal distance, we have
+\begin{equation}
+    y^{\mu}w^T x^{\mu} =  \delta ^{\mu}  \lVert w \rVert = \frac{\delta^{\mu}}{\delta} \geq 1
+\end{equation}
+
+All together we can find conditions on our weights that
+\begin{equation}
+    y^{\mu}w^T x^{\mu} \geq 1 \quad \forall \mu.  
+\end{equation}
+
+What we want to do to maximize the minimal margin \( \delta \) is to minimize the norm of the weights \( w \). 
+Since we have the freedom in choosing the norm of the weights, and we have chosen them to be \( 1/\delta \), this is equivalent to minimizing the norm of the weights with a fixed margin.
+
+So, our optimization problem is to minimize the norm of the weights under the above conditions which we write as
+\begin{equation}
+    w^* = \arg \min_{\{w\}} \{ \lVert w \rVert \mid y^{\mu}w^T x^{\mu} \geq 1, \forall \mu \}. 
+\end{equation}
+
+or equivalently, our optimization problem is 
+\begin{align*}
+    &\min_{\{w\}} \frac{1}{2} \lVert w \rVert^2 \\
+    &\text{subject to} \quad  -y^{\mu}w^T x^{\mu} + 1 \leq 0, \forall \mu
+\end{align*}
+
+This is a constrained optimization problem, and we can solve it using the Lagrange multipliers method.
 
 %
 %
 
 \subsubsection{The dual problem}
+We now will consider b as a different variable (which is not in w) since it requires a different treatment.
+The Lagrangian is given by:
+\begin{equation}
+    L(w, b, \alpha) = \frac{1}{2} \lVert w \rVert^2 - \sum_{\mu} \alpha^{\mu} (y^{\mu}(w^T x^{\mu} + b) - 1)
+\end{equation}
+
+Reminder - from the KKT conditions, we have that the optimal solution $w^*, b^*, \alpha^*$ holds:
+\begin{itemize}
+    \item Stationarity: 
+    \begin{align*} 
+        &\nabla_w L(w^*, b^*, \alpha^*) = 0 \Rightarrow \\
+        &w_i^* - \sum_{\mu} (\alpha^*)^{\mu} y^{\mu} x_i^{\mu} = 0, \; i = 1, 2, \ldots, N \Rightarrow \\
+        &w^* = \sum_{\mu} (\alpha^*)^{\mu} y^{\mu} x^{\mu} \\
+        &\nabla_b L(w^*, b^*, \alpha^*) = 0 \Rightarrow \\
+        &\sum_{\mu} (\alpha^*)^{\mu} y^{\mu} = 0
+    \end{align*}
+    \item Primal feasibility: \( -y^{\mu}((w^*)^T x^{\mu} + b) + 1 \leq 0, \; \forall \mu \)
+    \item Dual feasibility: \((\alpha^*)^{\mu} \geq 0, \; \forall \mu \)
+    \item Complementary slackness: \((\alpha^*)^{\mu} (-y^{\mu}((w^*)^T x^{\mu} + b) + 1) = 0, \; \forall \mu \)
+\end{itemize}
+We will construct a Lagrangian for the dual variables, $\alpha^\mu$. 
+We begin with the second term in the Lagrangian, which yields:
+\begin{equation}
+    \sum_{\mu} \alpha^{\mu} \left[ -y^{\mu} \left( \sum_{i} w_i x_i^{\mu} + b \right) + 1 \right] = - \sum_{\mu} \alpha^{\mu} y^{\mu} \sum_{i} w_i x_i^{\mu} + \sum_{\mu} \alpha^{\mu} 
+\end{equation}
+(Note that the term due to $b$ dropped because of the constraint $\sum_{\mu} \alpha^{\mu} y^{\mu} = 0$.)
+
+It is noted that the first term is simply $-\sum_{i} w_i^2$, which can be incorporated into the first term in the Lagrangian,
+ $\frac{1}{2} \sum_{i} w_i^2 - \sum_{i} w_i^2 = -\frac{1}{2} \sum_{i} w_i^2$. This term can be rewritten as:
+\begin{equation}
+    -\frac{1}{2} \sum_{i} w_i^2 = -\frac{1}{2} \sum_{\mu,\nu} \alpha^{\mu} \alpha^{\nu} y^{\mu} y^{\nu} \sum_{i} (x_i^{\mu})^T x_i^{\nu} 
+\end{equation}
+
+Overall, we get the dual Lagrangian:
+\begin{equation}
+    g(\alpha) = \sum_{\mu} \alpha^{\mu} - \frac{1}{2} \sum_{\mu,\nu} \alpha^{\mu} \alpha^{\nu} y^{\mu} y^{\nu} \sum_{i} (x_i^{\mu})^T x_i^{\nu} 
+\end{equation}
+
+The optimum of this Lagrangian is found by maximizing with respect to \( \alpha \). Thus, we have the dual problem formulated as:
+\begin{equation}
+    \alpha^* = \arg \max_{\alpha} g(\alpha) 
+\end{equation}
+
+
+\subsubsection{The support vectors}
+The support vectors are the points that lie on the margin, i.e., the points for which the margin is equal to 1.
+The support vectors are the points that are closest to the hyperplane and are the most informative points for the classification.
+The optimal solution of the SVM is a linear combination of the support vectors, and the other points do not affect the solution.
+We can tell that by the KKT slackness condition, the points that are not support vectors have $\alpha^{\mu} = 0$.
+
 
 %
 %
 
 \subsection{Dot product solution}
+
+Using the dual problem of Support Vector Machines (SVM), we can characterize the solution using the support vector coefficients and the support vectors without even referencing the weights directly.
+
+Recall that the weight vector \( w \) in the SVM formulation is given by a combination of the support vector coefficients and the support vectors themselves:
+\begin{equation}
+    w = \sum_{\mu} \alpha^{\mu} y^{\mu} x^{\mu} 
+\end{equation}
+
+With this, the SVM classifier can be written as a function of the input vector \( x \):
+\begin{equation}
+    \hat{y}(x) = \text{sign} \left( \sum_{\mu} \alpha^{\mu} y^{\mu} x^{\mu T} x \right) 
+\end{equation}
+
+Furthermore, for the learning process and the solution of the dual problem, it is essential to compute the \( P \times P \) matrix
+\begin{equation}
+    K_{\mu \nu} = x^{\mu} x^{\nu T} \quad (34)
+\end{equation}
+
+This matrix \( K \) is known as the kernel matrix, 
+which encapsulates the inner products of all pairs of training examples in the feature space. 
+
 
 %
 %
@@ -1247,6 +1375,10 @@ then the update rule for $P$ is given by:
 \chapter{Things that were not covered}
 
 \section{Convergence of the perceptron learning algorithm}
+
+\section{Uniqueness of the SVM solution (Vapnik, 1998)}
+
+\section{Upper bound on the generalization error of the SVM}
 
 \backmatter
 % Add any appendices or references here
