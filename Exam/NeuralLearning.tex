@@ -1201,28 +1201,47 @@ By the chain rule (\ref{ssec:chain_rule}), we can write:
 We will now derive the backpropagation algorithm for a network with 2 hidden layers - 
 the output of the network is given by $\hat{y} = \sigma(h^3)$, where $h^3 = w_1^3 s_1^2 + w_2^3 s_2^2$.
 
-\begin{equation}
+\begin{align*}
     \Delta w_{1}^{3} = -\eta \frac{\partial \epsilon (y|x^{\mu},y^{\mu})}{\partial w_{1}^{3}} = -\eta \delta^\mu \frac{\partial \hat{y}(w|x^{\mu})}{\partial w_{1}^{3}} = 
-    -\eta \delta^\mu \sigma'(h_{3}(x^{\mu})) s_{1}^2(x^{\mu}) 
-\end{equation}
+    -\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) s_{1}^2(x^{\mu}) 
+\end{align*}
 
+\begin{align*}
+    \Delta w_{11}^{2} = -\eta \frac{\partial \epsilon (y|x^{\mu},y^{\mu})}{\partial w_{2}^{11}} = -\eta \delta^\mu \frac{\partial \hat{y}(w|x^{\mu})}{\partial w_{11}^{2}} = \\
+    -\eta \delta^\mu \frac{\partial \hat{y}(w|x^{\mu})}{\partial s_{1}^{2}} \frac{\partial s_{1}^{2}}{\partial w_{11}^{2}} = -\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) w_{1}^{3} \sigma'(h_{1}^{2}) s_{1}^1
+\end{align*}
+
+\begin{align*}
+    &\Delta w_{11}^{1} = -\eta \frac{\partial \epsilon (y|x^{\mu},y^{\mu})}{\partial w_{11}^{1}} = -\eta \delta^\mu \frac{\partial \hat{y}(w|x^{\mu})}{\partial w_{11}^{1}} = \\ 
+    &-\eta \delta^\mu \frac{\partial \hat{y}(w|x^{\mu})}{\partial s_{1}^{2}} \frac{\partial s_{1}^{2}}{\partial w_{11}^{1}} = \\ 
+    &-\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) w_{1}^{3} \sigma'(h_{1}^{2}) w_{11}^{2} \sigma'(h_{1}^{1}) x_{1} 
+    - \eta \delta^\mu \sigma'(h^{3}(x^{\mu})) w_{2}^{3} \sigma'(h_{2}^{2}) w_{12}^{2} \sigma'(h_{1}^{1}) x_{2} = \\
+    &-\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) \left[ w_{1}^{3} \sigma'(h_{1}^{2}) w_{11}^{2}  + w_{2}^{3} \sigma'(h_{2}^{2}) w_{12}^{2} \right] \sigma'(h_{1}^{1}) x_{1}
+\end{align*}
+
+We can simplify the notation by introducing matrix notation:
+\begin{align*}
+    &\Delta W^{3} = -\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) S^{2} \\
+    &\Delta W^{2} = -\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) W^{3} \circ \sigma'(h^{2}(x^{\mu})) S^{1} \\
+    &\Delta W^{1} = -\eta \delta^\mu \sigma'(h^{3}(x^{\mu})) W^{3} \circ \sigma'(h^{2}(x^{\mu})) W^{2} \circ \sigma'(h^{1}(x^{\mu})) X
+\end{align*}
+Note that the $\circ$ denotes the Hadamard product, which is the element-wise multiplication of two matrices.
+
+In the same way, we can write the backpropagation algorithm for a network with $L$ hidden layers as follows:
 \begin{equation}
-    \Delta w_{11}^{2} = -\eta \frac{\partial y(w, u|x^{\mu})}{\partial w_{11}^{2}} = -\eta \sigma'(h_{3}(x^{\mu})) w_{1}^{3} \frac{\partial \sigma(h_{2}(x^{\mu}))}{\partial w_{11}^{2}} = -\eta \sigma'(h_{3}(x^{\mu})) w_{1}^{3} \sigma'(h_{1}^{2}) s_{1}^{+} 
+    \frac{\partial \epsilon}{\partial W_{ij}^l} = \frac{\partial \epsilon}{\partial h_i^l} \frac{\partial h_i^l}{\partial W_{ij}^l} = 
+    \frac{\partial \epsilon}{\partial h_i^l} s_j^{l-1}
 \end{equation}
-
+Where \( h_i^l = W^l \cdot s^{l-1} \) denotes the input to the \( i \)-th unit in the \( l \)-th layer, and \( s_i^l \) is the output thereof,
+ \( s_i^l = \sigma (h_i^l) \). The derivative with respect to \( h_i^l \) can be further expanded:
 \begin{equation}
-    \Delta w_{11}^{1} = -\eta \sigma'(h_{3}(x^{\mu})) w_{1}^{3} \frac{\partial s_{1}(x^{\mu})}{\partial w_{11}} = -\eta \sigma'(h_{3}(x^{\mu})) w_{1}^{3} \sigma'(h_{2}^{1}) w_{12}^{2} \sigma'(h_{1}^{1}) x_{1} 
+    \frac{\partial \epsilon}{\partial h_i^l} = \sum_j \frac{\partial \epsilon}{\partial h_{j}^{l+1}} \frac{\partial h_{j}^{l+1}}{\partial h_i^l} = 
+    \sum_j \frac{\partial \epsilon}{\partial h_{j}^{l+1}} W_{ji}^{l+1} \sigma'(h_i^l) 
 \end{equation}
-
+and for \( l = L \) we can compute \( \frac{\partial \epsilon}{\partial h_{i}^L} \) directly:
 \begin{equation}
-    \frac{\partial y}{\partial w_{ij}} = \sigma'(h^{3}) w_{1}^{3} \sigma'(h^{2}) w_{12}^{2} \sigma'(h^{1}) x_{j} 
+    \frac{\partial \epsilon}{\partial h_{i}^L} = \frac{\partial}{\partial h_{i}^L} \frac{1}{2} \sum_j (s_j^L - y_j)^2 = (s_i^L - y_i) \sigma'(h_i^L) 
 \end{equation}
-
-\begin{equation}
-    \sigma'(h^{(2)}) = \text{diag} [\sigma'(h_{i}^{(2)})] 
-\end{equation}
-
-
 
 
 %
@@ -1237,6 +1256,21 @@ the output of the network is given by $\hat{y} = \sigma(h^3)$, where $h^3 = w_1^
 %
 
 \section{Dynamics of learning in a linear network (no proof)}
+
+\begin{enumerate}
+    \item Even for a linear network, the dynamics of learning is nonlinear, because of the minimization of the nonlinear loss function.
+    \item The learning dynamics is controlled by the statistics of the data set used for training. The statistics is defined by input correlations and input-output correlations.
+    \item In linear networks, the singular components of the data statistics are learned one after the other, where modes with higher singular values are learned first.
+    \item These ideas can be extended to deeper networks.
+    \item It gives an intuition to what's going on in nonlinear networks.
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figs/dynamics_linear_network.jpeg}
+    \caption{Dynamics of learning in a linear network}
+    \label{fig:linear_network}
+\end{figure}
 
 %
 %
