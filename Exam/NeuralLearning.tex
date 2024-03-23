@@ -11,7 +11,8 @@
 \usepackage{tikz}
 \usepackage{subcaption}
 \usetikzlibrary{positioning}
-\usepackage{pgfplots} % Add this line to import the pgfplots package
+\usepackage{pgfplots} 
+\usepackage[ruled,vlined]{algorithm2e} 
 
 \DeclareMathOperator*{\argmax}{argmax}
 \DeclareMathOperator*{\argmin}{argmin}
@@ -20,7 +21,6 @@
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[section]
 \newtheorem{claim}{claim}[section]
-\newtheorem{algorithm}{Algorithm}[section]
 
 \newtheorem*{claim*}{Claim}
 \newtheorem*{corollary*}{Corollary}
@@ -584,17 +584,24 @@ For example, the XOR problem can not be solved by a single perceptron.
 
 \subsection{The perceptron learning algorithm}
 For a given set of inputs $\{\vec{x}^\mu, y^\mu\}_{\mu=1}^{P}$, we assume that the data is linearly separable.
-\begin {algorithm}[The perceptron learning algorithm]\ \\
-For t= 1, 2, ... until convergence do:
-\begin{itemize}
-    \item Choose a random example $(\vec{x}^t, y^t)$
-    \item If $y^t \neq sign((\vec{w}^t)^T \vec{x}^t)$, update the weights:
-    \begin{align*}
-        \vec{w}^{t+1} &\leftarrow \vec{w}^t + \bigtriangleup \vec{w}^{t+1} \\
-        \bigtriangleup \vec{w}^{t+1} &= \eta y^t \vec{x}^t
-    \end{align*}
-where $\eta$ is the learning rate.
-\end{itemize}
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \caption{The Perceptron Learning Algorithm}
+    
+    \KwIn{Training set $D = \{(\vec{x}^t, y^t)\}$, learning rate $\eta$}
+    \KwOut{Weight vector $\vec{w}$}
+    
+    Initialize weight vector $\vec{w}^1$ arbitrarily\;
+    $t \leftarrow 1$\;
+    
+    \While{not converged}{
+        Choose a random example $(\vec{x}^t, y^t)$ from $D$\;
+        \If{$y^t \neq \text{sign}((\vec{w}^t)^T \vec{x}^t)$}{
+            $\vec{w}^{t+1} \leftarrow \vec{w}^t + \eta y^t \vec{x}^t$\;
+        }
+        $t \leftarrow t + 1$\;
+    }
 \end{algorithm}
 
 
@@ -968,13 +975,14 @@ Recent studies have extended the perceptron theory, indicating that while the ex
 \end{definition}
 
 Gradient-based learning is a continuous change in the weights in the direction of the negative gradient of the empirical loss.
-\begin{algorithm}[Batch Learning Gradient descent]\ \\
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \caption{Batch Learning Gradient Descent}
     The change of the weights is in the direction of the negative gradient of the empirical loss:
-    \begin{align}
-        \frac {d \vec{w}}{dt} =  - \nabla_w E_{tr}(\vec{w})
-    \end{align}
-    
+    \[ \frac{d\vec{w}}{dt} = -\nabla_w E_{tr}(\vec{w}) \]
 \end{algorithm}
+    
 
 \begin{claim*}[The GD update always reduces the loss]\ \\
     \begin{align}
@@ -1000,14 +1008,14 @@ The weaknesses of the simple batch learning are:
 
 Differently from batch learning, in incremental learning, the samples are presented one by one, and the weights are updated after each sample.
 
-\begin{algorithm}[Online learning]\ \\
-    Let $\{ (\vec{x}^t, y^t) \}$ be a sequence of samples, where $t$ is the time index of the sample that is given to the system.
-    At each time step $t+1$ the system receives a new sample $(\vec{x}^{t}, y^{t})$ and updates the weights: 
-    \begin{align}
-        \vec{w}^{t+1} = \vec{w}^{t} - \eta \nabla_w \epsilon(\vec{w}^{t}, \vec{x}^{t}, y^{t})
-    \end{align}
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \caption{Online Learning}
+    Let $\{ (\vec{x}^t, y^t) \}$ be a sequence of samples, where $t$ is the time index of the sample that is given to the system. At each time step $t+1$ the system receives a new sample $(\vec{x}^{t}, y^{t})$ and updates the weights: 
+    \[ \vec{w}^{t+1} = \vec{w}^{t} - \eta \nabla_w \epsilon(\vec{w}^{t}, \vec{x}^{t}, y^{t}) \]
     where $\eta$ is the learning rate.
 \end{algorithm}
+
 
 \begin{corollary}[The update rule of quadratic error]\ \\
     \begin{align*}
@@ -1032,12 +1040,14 @@ The learning rules on online learning minimize the training error, but what we a
 However, if we don't have the underlying distribution of the data point $\mathbb{P}(\vec{x})$ and of the labels $\mathbb{P}(y|\vec{x})$, we can't compute it.
 In SDG, we try to improve the generalization error by adding some noise, stochasticity, to the learning process.
 
-\begin{algorithm}[Stochastic gradient descent (SGD)]\ \\
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \caption{Stochastic Gradient Descent (SGD)}
     Let $\{ (\vec{x}^t, y^t) \}$ be a sequence of samples, where $t$ is the time index of the sample that is given to the system.
     At each time step $t+1$ the system receives a new sample $(\vec{x}^{t}, y^{t})$ and updates the weights: 
-    \begin{align}
+    \begin{align*}
         \vec{w}^{t+1} = \vec{w}^{t} - \eta \nabla_w \epsilon(\vec{w}^{t}, \vec{x}^{t}, y^{t}) + \sigma \vec{\xi}(t) 
-    \end{align}
+    \end{align*}
     where: 
     \begin{itemize}
         \item $\eta$ is the learning rate.
@@ -1045,6 +1055,7 @@ In SDG, we try to improve the generalization error by adding some noise, stochas
         \item $\vec{\xi}(t)$ is a random vector of i.i.d. noise added to the dynamics.
     \end{itemize}
 \end{algorithm}
+
 The general idea is that:
 \begin{align*}
     \langle \bigtriangleup \vec{w}^{t+1} \rangle = - \eta \langle \nabla_w \epsilon(\vec{w}^{t}, \vec{x}^{t}, y^{t}) \rangle \approx -\eta \nabla_w \epsilon_g (\vec{w}^{t}, \vec{x}, y) 
@@ -1278,6 +1289,27 @@ and for \( l = L \) we can compute \( \frac{\partial \epsilon}{\partial h_{i}^L}
 
 \section{Shallow networks}
 
+\subsection{Universal approximation theorem (simple version)}
+We consider a neural network with a single hidden layer of N neurons: 
+\begin{align*}
+    \hat{y}(x) = W^2  \cdot \sigma(W^1 x + b)
+\end{align*}
+\begin{theorem}[Universal approximation theorem]\ \\
+For every continuous real valued function $f(x)$ on a compact subset of $\mathbb{R}^d$ and every $\epsilon > 0$  
+there exists $N \in \mathbb{N}$, $W^1, W^2 \in \mathbb{R}^N, b \in \mathbb{R}$ such that $\lVert f(x) - \hat{y}(x) \rVert < \epsilon$ for all $x$.
+\end{theorem}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figs/universal_approx_thm.jpeg}
+    \caption{Universal approximation theorem - intuition}
+    \label{fig:universal_approximation}
+\end{figure}
+
+
+%
+%
+
 \subsection{Universal approximation theorem}
 
 %
@@ -1296,23 +1328,151 @@ and for \( l = L \) we can compute \( \frac{\partial \epsilon}{\partial h_{i}^L}
 
 \section{Deep and shallow networks in the brain}
 
+\section{Deep and shallow networks in the brain}
+In the brain, there exists a hierarchical structure of deep computation, notably in the visual pathway, while the cerebellum exhibits a shallow but wide layering. 
+This structure underpins the brain's powerful ability to process complex stimuli and learn from environmental interactions.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/deep_and_shallow_brain.jpeg}
+    \caption{Deep and shallow networks in the brain}
+    \label{fig:brain_networks}
+\end{figure}
+
 \section{Why go deep?}
+Deep networks offer several advantages over their shallow counterparts, particularly in terms of expressivity and efficiency.
+
 \subsection{Expressivity}
+Expressivity refers to the network's ability to represent a wide variety of functions.
+
 \subsubsection{Size efficiency of deep networks}
+Deep networks are more size-efficient as they require fewer neurons to represent complex functions compared to shallow networks.
+This efficiency is partly due to their hierarchical structure, which allows deep networks to reuse features and represent functions more compactly.
+
+For example, a $\textbf{"sward-tooth"}$ function can be represented by a deep network with fewer neurons than a shallow network.
+A $\approx 2^N$ neurons are required to represent the function in a shallow network, 
+while a deep network can represent it with $\approx 3N$ neurons arranged in $\approx 2N$ layers.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{./Figs/sward-tooth.jpeg}
+    \caption{Sward-tooth function}
+    \label{fig:size_efficiency_deep_networks}
+\end{figure}
+
+In $\textbf{"On the Number of Linear Regions of Deep Neural Networks"}$ by Montufar et al. (2014)
+They showed that deep networks are able to sequentially map portions of each layer's input-space to the same output. 
+In this way, deep models compute functions that react equally to complicated patterns of different inputs.
+The compositional structure of these functions enables them to re-use pieces of computation exponentially often in terms of the network's depth. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/piecewise_linear_function.png}
+    \caption{Approximation by piecewise linear function and shallow networks}
+    \label{fig:size_efficiency_deep_networks}
+\end{figure}
+
+
 \subsubsection{Exponential expressivity in deep networks}
+As networks become deeper, their expressivity grows exponentially, not just adding but multiplying their ability to represent complex functions and interactions among inputs.
+
+\begin{figure}[ht]
+    \begin{subfigure}[b]{0.8\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/expressivity1.jpeg}
+        \label{fig:exponential_expressivity}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.8\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/expressivity2.jpeg}
+        \label{fig:exponential_expressivity2}
+    \end{subfigure}
+    \caption{Exponential expressivity in deep networks, Poole et al. (2015)}
+\end{figure}
+
 \subsubsection{Manifold disentanglement}
+Deep networks have the unique capability to disentangle complex data manifolds, making them more separable and thus easier to classify.
+This ability is analogous to how the visual system in mammals processes and identifies objects across varying conditions.
+
 \subsection{Trainability}
-\subsubsection{Sample complexity}
-\subsubsection{Training shallow vs deep networks}
+Trainability concerns the network's ability to adjust its parameters effectively through the learning process.
+
+\subsubsection{Sample complexity (Training shallow vs deep networks)}
+Deep networks generally have lower sample complexity, meaning they require fewer examples to learn the underlying distribution of the data. 
+This attribute is vital for learning from limited data.
+\begin{claim*}
+    Wide networks can express deep representations on some data set, but they cannot learn it given the same sized data set.
+\end{claim*}
+\begin{figure}[ht]
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/deep_trainability2.jpeg}
+        \label{fig:sample_complexity1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/deep_trainability1.jpeg}
+        \label{fig:sample_complexity2}
+    \end{subfigure}
+    \caption{Deep vs shallow networks in terms of sample complexity}
+\end{figure}
+
+Shallow networks face challenges in training, especially as the complexity of the task increases. 
+Deep networks, with their hierarchical structure, can learn more complex representations more efficiently.
+
 \subsubsection{The importance of a good initialization}
+Proper initialization of network weights is critical for the successful training of deep networks. 
+Good initialization can prevent issues such as vanishing or exploding gradients and ensure that the network learns effectively.
+
+\textcolor{red}{TODO}
+
+
 \subsection{Generalization}
+Generalization refers to the network's ability to perform well on unseen data.
+
 \subsubsection{The overparameterized regime}
+Deep networks often operate in an overparameterized regime where they have more parameters than necessary to fit the training data. 
+Despite this, they are still able to generalize well, which is somewhat counterintuitive and a subject of ongoing research.
+
+\textcolor{red}{TODO}
+
+
 \subsubsection{Why are deep networks good at generalization?}
+Despite their complexity and capacity, deep networks have shown remarkable generalization abilities,
+ which is theorized to be due to properties such as flat minima in their loss landscapes, among other factors.
 
 \section{Visual processing in the brain}
+The brain processes visual information through a hierarchical pathway, involving several stages of transformation and representation.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/visual_pathway_manifold.jpeg}
+    \caption{The visual pathway disentangles complex data manifolds.}
+    \label{fig:visual_pathway}
+\end{figure}
+
 \subsection{The visual pathway}
+The visual pathway consists of a series of areas, each building upon the previous ones' outputs to create increasingly abstract representations of the visual input.
+The ventral path pathway consists of the following areas:
+\begin{itemize}
+    \item retina: The first stage of visual processing, where light is converted into neural signals.
+    \item LGN: Lateral geniculate nucleus of the thalamus 
+    \item V1: Primary visual cortex
+    \item V2: Secondary visual cortex
+    \item V4: Visual area 4
+    \item IT: Inferior temporal cortex
+\end{itemize}
+
 \subsection{The visual cortex}
+Within the visual cortex, processing begins with simple features like edges and progresses to complex object representations, 
+demonstrating a form of deep, hierarchical computation.
+
 \subsection{The receptive field}
+Each neuron in the visual system has a receptive field, an area of the visual field to which it responds. 
+As visual information flows through the pathway, the receptive fields become larger and more selective, enabling the recognition of complex patterns.
+
 
 
 %
@@ -1783,16 +1943,78 @@ The sum of all future rewards may theoretically be infinite, for a reasonable ma
 
 
 \subsection{Bellman optimality}
+\begin{remark*}
+    The value of a state depends on the policy, and induce a partial order over the policies: 
+    \begin{align*}
+        \pi \geq \pi' \quad \iff \quad v^{\pi}(s) \geq v^{\pi'}(s) \quad \forall s \in S
+    \end{align*}
+\end{remark*}
+
+\begin{definition}[Optimal value function]\ \\
+    The optimal value function $v^*(s)$ is the maximum expected return starting from state $s$.
+    \begin{align*}
+        v^*(s) = \max_{\pi} v^{\pi}(s) = \max_{\pi} q(s, \pi(s)) = \max_{a} \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v^*(s') \} \forall s \in S
+    \end{align*}
+\end{definition}
+
+\begin{theorem}[Bellman optimality equation]\ \\
+    \begin{enumerate}
+        \item The optimal value function $v^*(s)$ satisfies the Bellman optimality equation, and is unique on condition that S, A are finite and $0 < \gamma < 1$.
+        \item There exists an optimal policy $\pi^*$ s.t. $v^*(s) = v^{\pi^*}(s)$, i.e., $\pi^* \geq \pi \quad \forall \pi $. \\
+        Moreover, $\pi^*$ is deterministic and is given by:
+        \begin{align*}
+            \pi^*(s) = \argmax_{a} \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v^{\pi^*}(s') \}
+        \end{align*}
+    \end{enumerate}
+\end{theorem}
+
+\section{Model-based methods}
+
+\begin{definition}[Model-based methods]\ \\
+
+\end{definition}
+
+\subsection{Dynamic programming}
+
+\begin{definition}[Dynamic programming]\ \\
+    Dynamic programming is a method for solving complex problems by breaking them down into simpler subproblems. 
+\end{definition}
+In the context of reinforcement learning, dynamic programming algorithms compute the value function by iteratively applying the Bellman optimality equation.
+
+Examples of dynamic programming algorithms include:
+
+Detailed explanation of a dynamic programming algorithm:
+
+\subsection{Value iteration}
+
+\begin{algorithm}[H] 
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} % Remove the extra space after this line
+    \KwOut{Optimal value function $v^*(s)$}
+    Initialize $v(s) \quad \forall s \in S$ \\
+    \While{not converged}{
+        \For{each state $s \in S$}{
+            $v(s) \leftarrow \max_{a} \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v(s') \}$
+        }
+    }
+    \caption{Value iteration\label{Value iteration}}
+\end{algorithm}
+
+
+
+\subsection{Policy iteration}
+
+
+
+\section{Model-free methods}
+
 
 
 \section{Temporal difference learning (TD)}
 \subsection{The TD error}
 \subsection{The TD learning rule}
 
-\section{Model-based methods}
-\subsection{Dynamic programming}
-\subsection{Value iteration}
-\subsection{Policy iteration}
+
 
 \section{Model-free methods}
 \subsection{Policy Gradient}
