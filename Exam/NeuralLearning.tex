@@ -92,10 +92,48 @@ Then the derivative of their quotient is given by:
 \end{equation}
 
 
+\section{Logarithms and exponentials}
+
+
+
+\subsection{Exponential function}
+The exponential function, denoted by \(e^x\), is a fundamental mathematical function that grows rapidly as \(x\) increases. 
+It is the inverse of the natural logarithm and is widely used in various mathematical and scientific contexts.
+
+Important properties of the exponential function include:
+\begin{itemize}
+    \item \(e^{x+y} = e^x e^y\)
+    \item \(e^{x-y} = \frac{e^x}{e^y}\)
+    \item \(e^{ax} = (e^x)^a\)
+    \item \(e^0 = 1\)
+    \item \(e^1 = e\)
+    \item \(e^{-x} = \frac{1}{e^x}\)
+    \item \(e^{x} > 0\) for all \(x \in \mathbb{R}\)
+\end{itemize}
+
+\textcolor{red}{todo - add graphs and rules derivation}
+
+\subsection{Natural logarithm}
+The natural logarithm, denoted by \(\ln(\cdot)\), is the inverse function of the exponential function. 
+It is defined for positive real numbers and has the property that \(\ln(e^x) = x\) for all \(x \in \mathbb{R}\).
+
+Important properties of the natural logarithm include:
+\begin{itemize}
+    \item \(\ln(xy) = \ln(x) + \ln(y)\)
+    \item \(\ln(x/y) = \ln(x) - \ln(y)\)
+    \item \(\ln(x^a) = a \ln(x)\)
+    \item \(\ln(e) = 1\)
+    \item \(\ln(1) = 0\)
+\end{itemize}
+
+\textcolor{red}{todo - add graphs}
 
 %
 %
 %
+
+\textcolor{red}{todo - add logistic, normal, htan fuction draws and derivations}
+
 
 \section{Probability}
 
@@ -2555,8 +2593,122 @@ Then the probability of taking action $a$ in state $s$ is given by:
 \end{align*}
 And the score function is given by:
 \begin{align*}
-    \nabla_{\theta} \log \pi_{\theta}(a|s) = \phi(s, a) - \sum_{a'} \pi_{\theta}(a'|s) \phi(s, a')
+    \nabla_{\theta} \log \pi_{\theta}(a|s) = \phi(s, a) - \mathbb{E}_{a \sim \pi_{\theta}}[\phi(s, a)]
 \end{align*}
+
+\begin{proof}
+    \begin{align*}
+        \nabla_{\theta} \log \pi_{\theta}(a|s) &= \nabla_{\theta} \log \left( \frac{e^{\theta^T \phi(s, a)}}{\sum_{a'} e^{\theta^T \phi(s, a')}} \right) \\
+        &= \nabla_{\theta} \left( \theta^T \phi(s, a) - \log \sum_{a'} e^{\theta^T \phi(s, a')} \right) \\
+        &= \phi(s, a) - \nabla_{\theta} \log \sum_{a'} e^{\theta^T \phi(s, a')} \\
+        &= \phi(s, a) - \frac{\nabla \sum_{a'} e^{\theta^T \phi(s, a')}}{\sum_{a'} e^{\theta^T \phi(s, a')}} \\
+        &= \phi(s, a) - \frac{\sum_{a'} \phi(s, a') e^{\theta^T \phi(s, a')}}{\sum_{a'} e^{\theta^T \phi(s, a')}} \\
+        &= \phi(s, a) - \sum_{a'} \pi_{\theta}(a'|s) \phi(s, a') \\
+        &= \phi(s, a) - \mathbb{E}_{a \sim \pi_{\theta}}[\phi(s, a)]
+    \end{align*}
+\end{proof}
+
+Consider a simple class of one-step MDPs: 
+\begin{align*}
+    &J(\theta) = \mathbb{E}_{\pi_{\theta}}[G] = \sum_{s \in S} d_0(s) \sum_{a \in A} \pi_{\theta}(a|s) R_s(a) \\ 
+    \nabla_{\theta} J(\theta) &= \sum_{s \in S} d_0(s) \sum_{a \in A} \pi_{\theta}(a|s) \nabla_{\theta} \log \pi_{\theta}(a|s) R_s(a) \\
+    &= \mathbb{E}_{\pi_{\theta}} \left[ \nabla_{\theta} \log \pi_{\theta}(a|s) R_s(a) \right]
+\end{align*}
+
+\begin{theorem}[Policy Gradient Theorem (2)]\ \\
+    For any differentiable policy $\pi_{\theta}(a|s)$, for any policy objective funcion $J(\theta)$, the policy gradient is given by:
+    \begin{align*}
+        \nabla_{\theta} J(\theta) = \mathbb{E}_{\pi_{\theta}} \left[ \nabla_{\theta} \log \pi_{\theta}(a|s) Q^{\pi_\theta}(s, a) \right]
+    \end{align*}
+    
+\end{theorem}
+
+\begin{algorithm}[H]
+    \SetNoFillComment
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$, $\alpha > 0$} 
+    \KwOut{Policy parameters $\theta$}
+    Initialize $\theta$ \\
+    \While{not converged}{
+        Generate an episode $(s_1, a_1, r_1) \rightarrow (s_2, a_2, r_2) \ldots \rightarrow (s_n, a_n, r_n)$ using policy $\pi_{\theta}$ \\
+        \For{each step $t$ in the episode}{
+            $G \leftarrow \sum_{k=t}^{n} \gamma^{k-t} r_{k}$ \\
+            $\theta \leftarrow \theta + \alpha \nabla_{\theta} \log \pi_{\theta}(a_t|s_t) G$
+        }
+    }
+    \caption{REINFORCE algorithm} \label{REINFORCE algorithm}
+\end{algorithm}
+
+\subsubsection{REINFORCE for neural networks}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.3\textwidth]{./Figs/single_neuron_reinforce.jpeg}
+    \caption{Single neuron REINFORCE.}
+    \label{fig:REINFORCE_NN}
+\end{figure}
+
+The setup: 
+\begin{itemize}
+    \item The activity of each neuron is given by a probability function $P(y_i = y | \vec{w}, \vec{x}) = g(y, \vec{w}, \vec{x})$. 
+        \begin{itemize}
+            \item Linear-nonlinear transformation: $P(y_i = y | \vec{w}^T \vec{x}) = g(y, \vec{w}^T\vec{x})$ where $g$ is a non linear function.
+            \item Bernoulli neurons: $P(y_i = 1 | \vec{w}^T \vec{x}) =  \text{sign}(\vec{w}^T \vec{x})$.
+            \item Logistic neurons: $P(y_i = 1 | \vec{w}, \vec{x}) = \frac{1}{1 + e^{-\vec{w}^T \vec{x}}}$.
+        \end{itemize}
+    \item At each step of the learning process:
+    \begin{itemize}
+        \item The environment provides input $\vec{x}^t \sim P_{input}(\vec{x})$.
+        \item The system finds an output $\vec{y}^t$ that is understood as an action.
+        \item The environment provides a reward $r^t \sim P(r | \vec{x}^t, \vec{y}^t)$ (a scalar value).
+        \item Every neuron in the network receives the reward signal $r^t$ and updates its weights.
+    \end{itemize}
+    \item The goal of the network is to maximize the expected reward: $\langle r \rangle = R(W)$.
+    \item We are averaging over few things:
+    \begin{itemize}
+        \item The input distribution $\vec{x}^t \sim P_{input}(\vec{x})$.
+        \item The output distribution $\vec{y} \sim P(\vec{y} | \vec{x}, \vec{w}, g)$.
+        \item The reward distribution $r^t \sim P(r | \vec{x}^t, \vec{y}^t)$.
+    \end{itemize}
+\end{itemize}
+
+\begin{algorithm}[H]
+    \SetNoFillComment
+    \SetAlgoLined
+    Initialize $\theta$ \\
+    For each episode $t$ \\
+    \begin{align*}
+        \bigtriangleup W_{ij} = \alpha_{ij}(r - b_{ij})e_{ij} = \alpha_{ij}(r - b_{ij})\frac{\partial \ln  g_i}{\partial W_{ij}}
+    \end{align*}
+    where:
+    \begin{itemize}
+        \item $r$ is the reward signal.
+        \item $b_{ij}$ is the baseline (reward threshold).
+        \item $e_{ij}$ is the eligibility trace. The responsibility of a particular connection with respect to the output.
+        \item $\alpha_{ij}$ is the learning rate (can be different for each synapse).
+    \end{itemize}
+    \caption{REINFORCE algorithm (of a NN)} \label{REINFORCE algorithm}
+\end{algorithm}
+
+\medbreak
+
+Example: binary neuron with logistic activation function:
+\begin{align*}
+    P(y_i = 1 | \vec{w}, \vec{x}) = \frac{1}{1 + e^{-\vec{w}^T \vec{x}}}
+\end{align*}
+The eligibility trace is given by (here we take the derivative without log to simplify the expression):
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./Figs/sigmoid_function_derivative.png}
+    \caption{Logistic neuron.}
+    \label{fig:logistic_neuron}
+\end{figure}
+
+\begin{align*}
+    e_{ij} = \frac{\partial P(y_i = 1 | \vec{w}, \vec{x})}{\partial w_{ij}} = P_i (1 - P_i) x_j
+\end{align*}
+
+\subsubsection{The analysis of the REINFORCE algorithm}
+\textcolor{red}{TODO - stuff from homework assignment}
 
 %
 %
