@@ -13,6 +13,8 @@
 \usetikzlibrary{positioning}
 \usepackage{pgfplots} 
 \usepackage[ruled,vlined]{algorithm2e} 
+\usepackage{dsfont}
+
 
 \DeclareMathOperator*{\argmax}{argmax}
 \DeclareMathOperator*{\argmin}{argmin}
@@ -25,6 +27,7 @@
 \newtheorem*{claim*}{Claim}
 \newtheorem*{corollary*}{Corollary}
 \newtheorem*{remark*}{Remark}
+\setcounter{tocdepth}{3}
 
 
 \title{Summary of 76909 - Neural Learning}
@@ -36,6 +39,7 @@
 \frontmatter
 \maketitle
 \tableofcontents
+
 
 \mainmatter
 \chapter{Mathematical Background}
@@ -1328,7 +1332,6 @@ there exists $N \in \mathbb{N}$, $W^1, W^2 \in \mathbb{R}^N, b \in \mathbb{R}$ s
 
 \section{Deep and shallow networks in the brain}
 
-\section{Deep and shallow networks in the brain}
 In the brain, there exists a hierarchical structure of deep computation, notably in the visual pathway, while the cerebellum exhibits a shallow but wide layering. 
 This structure underpins the brain's powerful ability to process complex stimuli and learn from environmental interactions.
 
@@ -1970,26 +1973,83 @@ The sum of all future rewards may theoretically be infinite, for a reasonable ma
 
 \section{Model-based methods}
 
-\begin{definition}[Model-based methods]\ \\
-
+\begin{definition}[Model-based RL]
+    In model-based RL, we have a working model of the environment, and we use this model to plan ahead and make decisions.
+    In the MDP framework, this means we know the transition probabilities $P_{s,a}(s')$ and the reward distribution $R_s(a)$.
 \end{definition}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Figs/model_based_RL.jpeg}
+    \caption{Model-based RL.}
+    \label{fig:model_based}
+\end{figure}
 
 \subsection{Dynamic programming}
 
 \begin{definition}[Dynamic programming]\ \\
     Dynamic programming is a method for solving complex problems by breaking them down into simpler subproblems. 
 \end{definition}
+
+For example, the shortest path problem can be solved using dynamic programming by breaking it down into subproblems of finding the shortest path from each node to the destination.
+
 In the context of reinforcement learning, dynamic programming algorithms compute the value function by iteratively applying the Bellman optimality equation.
 
-Examples of dynamic programming algorithms include:
+\subsection{Iterative policy evaluation}
+\begin{algorithm}[H] 
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$, policy $\pi$} 
+    \KwOut{Value function $v^{\pi}(s)$}
+    Initialize $v(s) \quad \forall s \in S$ \\
+    \While{not converged}{
+        \For{each state $s \in S$}{
+            $v(s) \leftarrow \sum_{a \in A} \pi(s, a) \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v(s') \}$
+        }
+    }
+    \caption{Iterative policy evaluation\label{Iterative policy evaluation}}
+\end{algorithm}
 
-Detailed explanation of a dynamic programming algorithm:
+%
+%
+
+\subsection{Policy iteration}
+\begin{algorithm}[H] 
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$}
+    Initialize $\pi(s) \quad \forall s \in S$ \\
+    \While{not converged}{
+        \For{each state $s \in S$}{
+            $\pi(s) \leftarrow \argmax_{a} \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v(s') \}$
+        }
+        Evaluate $v^{\pi}(s)$ using iterative policy evaluation.
+    }
+    \caption{Policy iteration\label{Policy iteration}}
+\end{algorithm}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./Figs/policy_iteration.png}
+    \caption{Policy iteration.}
+    \label{fig:policy_iteration}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Figs/policy_iter.png}
+    \caption{Policy iteration in a small Gridworld.}
+    \label{fig:policy_iter}
+\end{figure}
+%
+%
 
 \subsection{Value iteration}
 
+The idea behind value iteration is to iteratively update the value function until convergence, in contrast to policy iteration, 
+which alternates between policy evaluation and policy improvement.
+
 \begin{algorithm}[H] 
     \SetAlgoLined
-    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} % Remove the extra space after this line
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} 
     \KwOut{Optimal value function $v^*(s)$}
     Initialize $v(s) \quad \forall s \in S$ \\
     \While{not converged}{
@@ -2001,24 +2061,217 @@ Detailed explanation of a dynamic programming algorithm:
 \end{algorithm}
 
 
-
-\subsection{Policy iteration}
-
-
-
-\section{Model-free methods}
-
-
-
-\section{Temporal difference learning (TD)}
-\subsection{The TD error}
-\subsection{The TD learning rule}
-
+%
+%
+%
+%
+%
+%
 
 
 \section{Model-free methods}
-\subsection{Policy Gradient}
-\subsection{REINFORCE}
+
+\begin{definition}[Model-free RL]
+    In model-free RL, there is no explicit knowledge of the environment, and the agent learns by interacting with the environment.
+    In the MDP framework, this means we do not know the transition probabilities $P_{s,a}(s')$ or the reward distribution $R_s(a)$.
+    The goal is to learn a policy while interacting with the environment, using trial and error.
+\end{definition}
+
+
+
+\subsection{Value-based methods VS Policy-based methods}
+\begin{definition}[Value-based methods]\ \\
+    Value-based methods learn the optimal value function $v^*(s)$ or the optimal Q function $q^*(s, a)$ and derive the optimal policy from it.
+\end{definition}
+
+\begin{definition}[Policy-based methods]\ \\
+    Policy-based methods learn the optimal policy directly without learning any value function.
+\end{definition}
+
+
+\subsection{Value-based Model-free methods}
+
+
+\subsubsection{Monte Carlo}
+The most straightforward model-free method is Monte Carlo (MC) learning, which estimates the value function by averaging the returns from multiple episodes.
+
+\begin{algorithm}[H] 
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} 
+    \KwOut{Value function $v^{\pi}(s)$}
+    Initialize $v(s) \quad \forall s \in S$ \\
+    \While{not converged}{
+        Generate an episode $(s_1, r_1) \rightarrow (s_2, r_2) \ldots \rightarrow (s_n, r_n)$ using policy $\pi$ \\
+        $R \leftarrow \sum_{k=1}^{n} \gamma^k r_{k}$ \\
+        \For{each state $s_k$ in the episode}{
+            $v(s_k) \leftarrow v(s_k) + \frac{1}{n} (R - v(s_k))$
+        }
+    }
+    \caption{Monte Carlo prediction\label{Monte Carlo prediction}}
+\end{algorithm}
+After many episodes, this procedure guarantees convergence to the true value function, but it can be computationally expensive.
+
+\subsubsection{Temporal difference learning (TD)}
+Temporal difference (TD) learning is a model-free method that learns from incomplete epsiodes, by bootstrapping from the current estimate of the value function.
+TD can learn before knowing the final outcome or without any final outcome, and it is more efficient than MC learning.
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} 
+    \KwOut{Value function $v^{\pi}(s)$}
+    Initialize $v(s) \quad \forall s \in S$ \\
+    \While{not converged}{
+        Initialize state $s_0, \quad t=0$ \\
+        \While{not terminal}{
+            Take action $a$ using policy $\pi$ \\
+            Observe reward $r_{t+1}$ and next state $s_{t+1}$ \\
+            $v(s_t)\leftarrow v(s_t) + \alpha (r_{t+1} + \gamma v(s_{t+1}) - v(s))$ \\
+            $t \leftarrow t+1$
+        }
+    }
+    \caption{Temporal difference learning (TD(0))\label{Temporal difference learning}}
+    
+\end{algorithm}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/MC_vs_TD.png}
+    \caption{Monte Carlo vs Temporal Difference learning.}
+    \label{fig:TD_learning}
+\end{figure}
+
+The differences between MC and TD learning are: 
+\begin{itemize}
+    \item Bias and variance:
+        \begin{itemize}
+            \item MC has high variance and zero bias.
+            \item TD has low variance and some bias (it is more sensitive to initial values).
+        \end{itemize}
+    \item Learning process:
+        \begin{itemize}
+            \item MC must wait until the end of the episode to update the value function. 
+            Can learn only from complete sequences of episodic environments.
+            \item TD can learn before knowing the final outcome, and online after each step. 
+            Can learn from complete or incomplete sequences of continuing or episodic environments.
+        \end{itemize}
+    \item Convergence:
+        \begin{itemize}
+            \item MC converges to solution with minimum mean squared error (usually more effective in non-Markov environments).
+            \item TD(0) converges to solution of max likelihood Markov model (usually more effective in Markov environments).
+        \end{itemize}
+\end{itemize}
+
+\begin{figure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/MC_tree.png}
+        \caption{Monte Carlo.}
+        \label{fig:MC_tree}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/TD0_tree.png}
+        \caption{Temporal Difference (0).}
+        \label{fig:TD_tree}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/DP_tree.png}
+        \caption{Dynamic Programming.}
+        \label{fig:DP_tree}
+    \end{subfigure}
+    \label{fig:variance}
+    \caption{Prediction methods comparison.}
+\end{figure}
+
+
+\subsubsection{The TD(n) error and learning rule}
+The TD error is the difference between the predicted value and the target value, and it is used to update the value function.
+We can genralize the expected return to more than observing one step ahead: 
+\begin{align*}
+    G_t^{(1)} &= r_{t+1} + \gamma v(s_{t+1}) &\quad \textbf{(TD(0))} \\
+    G_t^{(2)} &= r_{t+1} + \gamma r_{t+2} + \gamma^2 v(s_{t+2}) \\
+    \ldots \\
+    G_t^{(\infty)} &= r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{T-1} r_{T} &\quad \textbf{(MC)}
+\end{align*}
+And in general, the n-step return is given by:
+
+\begin{definition}[n-step return]\ \\
+    \begin{align*}
+        G_t^{(n)} &= r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{n-1} r_{t+n} + \gamma^n v(s_{t+n})
+    \end{align*}
+\end{definition}
+
+\begin{definition}[TD(n) error]\ \\
+    The TD(n) error is the difference between the n-step return and the current estimate of the value function.
+    \begin{align*}
+        \delta_t^{(n)} = G_t^{(n)} - v(s_t)
+    \end{align*}
+\end{definition}
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$} 
+    \KwOut{Value function $v^{\pi}(s)$}
+        The same as TD(0) but with update rule: 
+        \begin{align*}
+            v(s_t) &\leftarrow v(s_t) + \alpha \delta_t^{(n)} \\ 
+            &= v(s_t) + \alpha (G_t^{(n)} - v(s_t)) \\ 
+            &= v(s_t) + \alpha (r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{n-1} r_{t+n} + \gamma^n v(s_{t+n}) - v(s_t))
+        \end{align*}
+    \caption{Temporal difference learning (TD(n)) (Forword view) \label{Temporal difference learning}}
+\end{algorithm}
+
+\subsubsection{Backward view and eligibility traces}
+The forward view of $TD(n)$ (or $TD(\lambda)$) requires storing the n-step return for each state, which can be computationally expensive.
+The backward view of $TD(n)$ uses eligibility traces to update the value function, which is more computationally efficient - 
+in that way we can update the value function online for all states at once, from incomplete sequences of episodes.
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Figs/RL_credit_assignment.png}
+    \caption{Credit assignment problem in RL.}
+    \label{fig:eligibility_traces}
+\end{figure}
+
+When we are discussing the $\textbf{Credit assignment problem}$ in RL, we don't know which state was responsible for the reward at each time step,
+so we consider 2 heuristics:
+\begin{itemize}
+    \item $\textbf{Frequence heuristic}$: The more often a state is visited, the more credit it gets.
+    \item $\textbf{Recency heuristic}$: The more recent a state is visited, the more credit it gets.
+\end{itemize}
+
+\begin{definition}[Eligibility traces]\ \\
+    The eligibility trace $E_t(s)$ is a vector that keeps track of the eligibility of each state for updating the value function.
+    \begin{align*}
+        \vec{E}_0(s) &= 0 \\
+        \vec{E}_t(s) &= \gamma \lambda \vec{E}_{t-1}(s) + \mathds{1}(s = s_t)
+    \end{align*}
+    where:
+    \begin{itemize}
+        \item $\gamma$ is the discount factor that determines the importance of future rewards (it is given by the problem definition).
+        \item $\lambda$ is the eligibility trace decay parameter.
+        \item $\mathds{1}(s = s_t)$ is the indicator function.
+    \end{itemize}
+\end{definition}
+
+
+
+\subsubsection{On-policy VS Off-policy}
+
+%
+%
+%
+%
+%
+%
+
+\subsection{Policy-based Model-free methods}
+
+
+\subsubsection{Policy Gradient}
+\subsubsection{REINFORCE}
 
 %
 %
