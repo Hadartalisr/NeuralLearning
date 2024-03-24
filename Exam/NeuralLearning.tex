@@ -15,6 +15,11 @@
 \usepackage[ruled,vlined]{algorithm2e} 
 \usepackage{dsfont}
 
+\setlength{\parindent}{0pt}
+
+
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
 
 \DeclareMathOperator*{\argmax}{argmax}
 \DeclareMathOperator*{\argmin}{argmin}
@@ -71,6 +76,22 @@ Then the derivative of $y$ with respect to $w$ is given by:
 \begin{equation}
     \frac{dy}{dw} = \frac{\partial y}{\partial x} \frac{dx}{dw} + \frac{\partial y}{\partial z} \frac{dz}{dw}
 \end{equation}
+
+\subsubsection{Procuct rule}
+Let $f(x)$ and $g(x)$ be two functions of $x$. 
+Then the derivative of their product is given by:
+\begin{equation}
+    \frac{d}{dx} [f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+\end{equation}
+
+\subsubsection{Quotient rule}
+Let $f(x)$ and $g(x)$ be two functions of $x$. 
+Then the derivative of their quotient is given by:
+\begin{equation}
+    \frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{f'(x)g(x) - f(x)g'(x)}{[g(x)]^2}
+\end{equation}
+
+
 
 %
 %
@@ -2222,7 +2243,7 @@ And in general, the n-step return is given by:
     \caption{Temporal difference learning (TD(n)) (Forword view) \label{Temporal difference learning}}
 \end{algorithm}
 
-\subsubsection{Backward view and eligibility traces}
+\subsubsection{Backward view of TD and eligibility traces}
 The forward view of $TD(n)$ (or $TD(\lambda)$) requires storing the n-step return for each state, which can be computationally expensive.
 The backward view of $TD(n)$ uses eligibility traces to update the value function, which is more computationally efficient - 
 in that way we can update the value function online for all states at once, from incomplete sequences of episodes.
@@ -2256,22 +2277,286 @@ so we consider 2 heuristics:
     \end{itemize}
 \end{definition}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Figs/Backword_TD.png}
+    \caption{Backward view of TD learning.}
+    \label{fig:eligibility_traces}
+\end{figure}
+
+\begin{algorithm}[H]
+    \SetNoFillComment
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$, $\lambda \in [0, 1]$, $\alpha > 0$, $\pi$} 
+    \KwOut{Value function $v^{\pi}(s)$}
+    Initialize $v(s) \quad \forall s \in S$ and $\vec{E}_0(s) = 0 \quad \forall s \in S$ \\
+    \While{not converged}{
+        Initialize state $s_0, \quad t=0$ \\
+        \While{not terminal}{
+            Take action $a$ using policy $\pi$ \\
+            Observe reward $r_{t+1}$ and next state $s_{t+1}$  \\ 
+            $\delta_t = r_{t+1} + \gamma v(s_{t+1}) - v(s_t)$  \tcp*[l]{Compute TD error}
+            $v(s) \leftarrow v(s) + \alpha \delta_t E_t(s)$ \tcp*[l]{Update val fun based on the error and eligibility}
+            $t \leftarrow t+1$ \\
+            $\vec{E}_t(s) \leftarrow \gamma \lambda \vec{E}_{t-1}(s) + \mathds{1}(s = s_t)$ \tcp*[l]{Update eligibility trace}
+        }
+    }
+    \caption{Temporal difference learning with eligibility traces (TD($\lambda$))} \label{Temporal difference learning}
+\end{algorithm}
+
+When $\lambda = 0$, the eligibility trace is a one-step trace, and the algorithm is equivalent to TD(0).
+When $\lambda = 1$, the eligibility trace is a complete trace, and the algorithm is equivalent to MC in case of offline update (after the end of the episode).
+
+\medbreak
+$\textbf{Issues with value-based TD algorithms}$ \\
+\begin{itemize}
+    \item With TD(n) we can learn the optimal value function without knowing the model of the environment.
+    \item But when we want to extract the optimal policy from the value function, there is a problem: we need to know the model of the environment.
+    \begin{align*}
+        \pi^*(a|s) = \argmax_{a} \{R_s(a) + \gamma \sum_{s' \in S} P_{s,a}(s') v^*(s') \}
+    \end{align*}
+    So we still need a model to extract the optimal policy (we don't know the transition probabilities $P_{s,a}(s')$).
+\end{itemize}
 
 
 \subsubsection{On-policy VS Off-policy}
+\begin{definition}[On-policy methods]\ \\
+    On-policy methods learn the value function for the policy that is used to make decisions. \\
+    Learn about policy $\pi$ from experience sampled from policy $\pi$.
+\end{definition}
+\begin{definition}[Off-policy methods]\ \\
+    Off-policy methods learn the value function for a different policy than the one used to make decisions. \\
+    Learn about policy $\pi$ from experience sampled from policy $\mu$.
+\end{definition}
+
+
+\subsubsection{SARSA algorithm}
+The SARSA algorithm is an on-policy TD control algorithm that learns the Q function for the policy that is used to make decisions. \\
+The name SARSA comes from the sequence of states, actions, rewards, states, and actions. 
+The idea is to apply the TD update rule to the Q function, and then update the policy based on the new Q function while using $\epsilon$-greedy exploration.
+
+\begin{algorithm}[H]
+    \SetNoFillComment
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$, $\epsilon > 0$, $\alpha > 0$} 
+    \KwOut{Q function $q(s, a)$}
+    Initialize $q(s, a) \quad \forall s \in S, a \in A$ \\
+    \While{not converged}{
+        Initialize state $s_0, \quad t=0$ \\
+        Choose action $a_0$ using $\epsilon$-greedy policy based on $q$ \\
+        \While{not terminal}{
+            Take action $a_t$ \\
+            Observe reward $r_{t+1}$ and next state $s_{t+1}$  \\ 
+            Choose action $a_{t+1}$ using $\epsilon$-greedy policy based on $q$ \\
+            $\delta_t = r_{t+1} + \gamma q(s_{t+1}, a_{t+1}) - q(s_t, a_t)$  \tcp*[l]{Compute TD error}
+            $q(s_t, a_t) \leftarrow q(s_t, a_t) + \alpha \delta_t$ \tcp*[l]{Update Q function}
+            $t \leftarrow t+1$ \\
+        }
+    }
+    \caption{SARSA algorithm} \label{SARSA algorithm}
+\end{algorithm}
+
+\begin{figure}[ht]
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/SARSA.png }
+        \label{fig:SARSA}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/SARSA2.png}
+        \label{fig:SARSA_tree}
+    \end{subfigure}
+    \label{fig:SARSA}
+    \caption{SARSA algorithm.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/SARSA_grid.png}
+    \caption{SARSA($\lambda$) algorithm in a small Gridworld.}
+    \label{fig:SARSA}
+\end{figure}
+
+
+\subsubsection{Q-learning algorithm}
+The Q-learning algorithm is an off-policy TD control algorithm that learns the Q function for the optimal policy,
+regardless of the policy that is used to make decisions. \\
+Key ideas of Q-learning:
+\begin{itemize}
+    \item Next action is chosen using behavior policy $a_{t+1} \approx \mu(\cdot|s)$ (e.g., $\epsilon$-greedy).
+    \item We consider alternative successor action $a' \approx  \pi(a| s_{t})$.
+    \item We update the Q function towards the value of the alternative action.
+    \item We allow both behavior and target policies to improve -
+    \begin{itemize}
+        \item The target policy $\pi$ is greeady with respect to the Q function.
+        \begin{align*}
+            \pi(a|s_{t+1}) = \argmax_{a} q(s_{t+1}, a)
+        \end{align*}
+        \item The behavior policy $\mu$ is $\epsilon$-greedy with respect to the Q function.
+    \end{itemize}
+    \item The Q-learning them simplifies:
+    \begin{align*}
+        q(s_t, a_t) \leftarrow q(s_t, a_t) + \alpha (r_{t+1} + \gamma \max_{a'} q(s_{t+1}, a') - q(s_t, a_t))
+    \end{align*}
+    \item The Q-learning control converges to the optimal action-value function $q^*(s, a)$.
+\end{itemize}
+
+\begin{algorithm}[H]
+    \SetNoFillComment
+    \SetAlgoLined
+    \KwIn{MDP $(S, A, P_{s,a}(\cdot), R_s(\cdot), \gamma)$, $\epsilon > 0$, $\alpha > 0$} 
+    \KwOut{Q function $q(s, a)$}
+    Initialize $q(s, a) \quad \forall s \in S, a \in A$ \\
+    \While{not converged}{
+        Initialize state $s_0, \quad t=0$ \\
+        \While{not terminal}{
+            Choose action $a_t$ using $\epsilon$-greedy policy based on $q$ \\
+            Take action $a_t$ \\
+            Observe reward $r_{t+1}$ and next state $s_{t+1}$  \\ 
+            $\delta_t = r_{t+1} + \gamma \max_{a'} q(s_{t+1}, a') - q(s_t, a_t)$  \tcp*[l]{Compute TD error}
+            $q(s_t, a_t) \leftarrow q(s_t, a_t) + \alpha \delta_t$ \tcp*[l]{Update Q function}
+            $t \leftarrow t+1$ \\
+        }
+    }
+    \caption{Q-learning algorithm} \label{Q-learning algorithm}
+\end{algorithm}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/Q_Learning.png}
+    \caption{Q-learning algorithm.}
+    \label{fig:Q_learning}
+\end{figure}
+
+
+
+\subsubsection{Stochatic policies}
+Why would we need stochastic policies?
+\begin{itemize}
+    \item in MDP, there is always an optimal deterministic policy.
+    \item However, modt problems are not fully observable, and the optimal policy may be stochastic.
+    \item Search space is smoother for stochastic policies $\rightarrow$ we can use gradient-based optimization.
+    \item Exploration: Stochastic policies allow the agent to explore the environment and learn more about it.
+\end{itemize}
+
+\begin{definition}[The exploration vs exploitation dilemma]\ \\
+    The exploration vs exploitation dilemma is the trade-off between exploring the environment to learn more about it and exploiting the current knowledge to maximize rewards.
+\end{definition}
+
+some exploration strategies:
+\begin{itemize}
+    \item $\textbf{Epsilon-greedy}$: With probability $\epsilon$ choose a random action, otherwise choose the greedy action.
+    \begin{align*}
+        \pi(a|s) = \begin{cases}
+            1 - \epsilon + \frac{\epsilon}{|A|} & \text{if } a = \argmax_{a} q(s, a) \\
+            \frac{\epsilon}{|A|} & \text{otherwise}
+        \end{cases}
+    \end{align*}
+
+    \item $\textbf{Softmax}$: Choose actions according to the Boltzmann policy.
+    \begin{align*}
+        \pi(a|s) = \frac{e^{\beta q(s, a)}}{\sum_{a'} e^{\beta q(s, a')}}
+    \end{align*}
+\end{itemize}
+Where we would decrease $\epsilon$ or increase $\beta$ over time to decrease exploration and increase exploitation.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{./Figs/softmax_example.jpeg}
+    \caption{Softmax mapping example.}
+    \label{fig:softmax}
+\end{figure}
+
+\begin{figure}[ht]
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/epsilon_greedy_q2.jpeg}
+        \label{fig:epsilon_greedy}
+        \caption{Distance from the optimal policy}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/epsilon_greedy_q.jpeg}
+        \caption{Average reward per episode}
+        \label{fig:softmax}
+    \end{subfigure}
+    \label{fig:exploration}
+    \caption{$epsilon$-greedy policy for q-learning on a gridworld.}  
+\end{figure}
+
 
 %
 %
 %
-%
-%
-%
+
 
 \subsection{Policy-based Model-free methods}
+We have seen that the optimal policy can be found using the action-state value function
+\begin{align*}
+    \pi^*(a|s) = \argmax_{a} q^{*}(s, a)
+\end{align*}
+Instead, we can define a policy that optimizes an arbitrary parameterized function 
+\begin{align*}
+    \pi_\theta(a|s) = \argmax_{a} H(s, a |\theta)
+\end{align*}
+where $\theta$ are the parameters of the policy,
+and the optimal policy is learned by adjusting the parameters $\theta$ to maximize the expected return.
+
+We can also define a stochastic policy, e.g., Softmax / Boltzmann policy:
+\begin{definition}[Softmax policy (Boltzmann policy)]\ \\
+    \begin{align*}
+        \pi(a|s) = \frac{e^{\beta H(s, a |\theta)}}{\sum_{a'} e^{\beta H(s, a' |\theta)}}
+    \end{align*} 
+\end{definition}
+
+
+
 
 
 \subsubsection{Policy Gradient}
-\subsubsection{REINFORCE}
+A simple policy based method scheme:
+\begin{enumerate}
+    \item Run many trials with different perturbated parameter sets $\theta^{(1)}, \theta^{(2)}, \ldots, \theta^{(N)}$.
+    \item Fit a function of the parameters to the return value: $J(\theta) = \mathbb{E}[G]$.
+    \item Update the parameters $\theta$ using the gradient of the function: $\theta \leftarrow \theta + \alpha \nabla_{\theta} J(\theta)$.
+\end{enumerate}
+
+\begin{theorem}[Policy Gradient Theorem]\ \\
+    For any differentiable policy $\pi_{\theta}(a|s)$, let $d_0$ be the initial state distribution over states at the beginning of an episode.
+    The policy gradient of $J(\theta) = \mathbb{E}_{\pi_{\theta}}[G | {s} \sim  d_0 ]$ is given by:
+    \begin{align*}
+        \nabla_{\theta} J(\theta) = 
+            \mathbb{E}_{\pi_{\theta}} \left[ \sum_{t=0}^T \gamma^t \quad q_{\pi_{\theta}}(s, a) \quad \nabla_{\theta} \pi_{\theta}(a|s) 
+            \quad | \quad \{s\} \sim  d_0 \right]
+    \end{align*}    
+\end{theorem}
+
+\subsubsection{Score function (likelihood ratio)}
+Likelihood ratios exploits the following identity:
+\begin{align*}
+    \nabla_{\theta} \pi_{\theta}(a|s) = \pi_{\theta}(a|s)\frac{\nabla_{\theta} \pi_{\theta}(a|s)}{\pi_{\theta}(a|s)} = \pi_{\theta}(a|s) \nabla_{\theta} \log \pi_{\theta}(a|s)
+\end{align*}
+
+\begin{definition}[The score function]\ \\
+    The score function is the gradient of the log-likelihood of the policy:
+    \begin{align*}
+        \nabla_{\theta} \log \pi_{\theta}(a|s)
+    \end{align*}
+\end{definition}
+
+
+\subsubsection{REINFORCE (Monte Carlo policy gradient)}
+The REINFORCE algorithm is a policy gradient method that uses the score function to update the policy parameters.
+We will use softmax policy as an examplem, and actions using linear combination of features: $\pi_\theta(a|s) = H(s, a |\theta) = \theta^T \phi(s, a)$. \\
+Then the probability of taking action $a$ in state $s$ is given by:
+\begin{align*}
+    \pi_{\theta}(a|s) = \frac{e^{\theta^T \phi(s, a)}}{\sum_{a'} e^{\theta^T \phi(s, a')}}
+\end{align*}
+And the score function is given by:
+\begin{align*}
+    \nabla_{\theta} \log \pi_{\theta}(a|s) = \phi(s, a) - \sum_{a'} \pi_{\theta}(a'|s) \phi(s, a')
+\end{align*}
 
 %
 %
