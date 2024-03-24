@@ -2129,7 +2129,65 @@ then the update rule for $P$ is given by:
 %
 
 \section{Cortical networks (motor cortex and prefrontal cortex)}
+
 \subsection{Dynamic system hypothesis}
+\begin{definition}[Dynamical system]
+    A dynamical system is a concept in mathematics where a fixed rule describes the time dependence of a point in a geometrical space. 
+    The most common type of dynamical system is a differential equation that describes how a quantity \( x \) changes with time \( t \). 
+
+    Consider the following differential equation:
+    \begin{equation}
+        \frac{dx}{dt} = H(x) + I(t)
+    \end{equation}
+    In this context:
+    \begin{itemize}
+        \item \( \frac{dx}{dt} \) is the derivative of the state variable \( x \) with respect to time, representing the rate of change of the system's state.
+        \item \( H(x) \) is a function representing the system's inherent dynamics based solely on its current state \( x \).
+        \item \( I(t) \) is a time-dependent input or control function representing external factors influencing the system's state.
+    \end{itemize}  
+    Dynamical systems has to be Markovian, meaning that the future state of the system depends only on the current state and not on the sequence of events that preceded it.  
+\end{definition}
+
+Can a dynamical system represent any state?
+
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/circle_dynamical_system.jpeg}
+        \label{fig:dynamical_system}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.67\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./Figs/dynamics_2_neurons.jpeg}
+        \label{fig:dynamical_system_2_neurons}
+    \end{subfigure}
+    \caption{Dynamical system of the activity of 2 neurons.}
+    \label{fig:dynamical_system}
+\end{figure}
+
+\begin{definition}[Measure of entanglement]
+    \begin{align}
+        Q(t) = \max_{t'} \frac{ \lVert \dot{x_t} - \dot{x_{t'}} \rVert^2 }{ \lVert x_t - x_{t'} + \epsilon \rVert }
+    \end{align}
+    Where:
+    \begin{itemize}
+        \item \( x_t \) is the state of the system at time \( t \) (for example, the position of a particle in space)
+        \item \( \dot{x_t} \) is the derivative of the state at time \( t \) (for example, the velocity)
+        \item \( \epsilon \) is a small constant
+    \end{itemize}
+    The intuition behind this measure is that if the system is highly entangled, even if the states are close, the derivatives can be very different.
+\end{definition}
+
+\begin{definition}[Dynamic system hypothesis]\ \\
+    \begin{itemize}
+        \item A computation can be described in a low-dimensional state space.
+        \item In its basic representation, trajectories may be entangled (not a state space).
+        \item By adding some dimensions, we can untangle the trajectory and create a dynamical system landscape.
+        \item We want the trajectories to be untangled enough to be robust to noise (Luckily, we have many neurons that can do that).
+        \item A recurrent neural network may implement many separate dynamical systems (because they are very high-D). We chose between them using proper initial conditions.
+    \end{itemize}    
+\end{definition}
+
 \subsection{Motor cortex untangles muscles trajectory}
 \subsubsection{Supplementary motor area (SMA)}
 \subsection{Context-dependent integration in prefrontal cortex}
