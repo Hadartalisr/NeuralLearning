@@ -1052,16 +1052,201 @@ Combining these gives us the dual problem:
 \chapter{A Single Layer}
 
 \section{The Kernel Method}
-\subsection{The dot product solution of the SVM}
-\subsection{The XOR problem}
-\subsection{Nonlinear decision boundaries}
-\subsection{The kernel trick}
-\subsection{Mercer's theorem}
-\subsection{Common kernels}
-\subsubsection{Polynomial kernel}
-\subsubsection{Gaussian kernel}
-\subsubsection{Sigmoid kernel}
-\subsubsection{Admissible kernels}
+
+The kernel method is an essential tool in SVMs (Support Vector Machines), allowing for the creation of complex, nonlinear decision boundaries. The main advantage is that it facilitates the classification of data that is not linearly separable by transforming it into a higher-dimensional space where a linear separation becomes possible.
+
+\subsection{The Dot Product Solution of the SVM}
+The dual problem of SVM can be solved using only the support vector coefficients and the inner products of the samples in the feature space, bypassing the need to compute the weights directly. The weight vector $\vec{w}$ is given as a combination of the sample features weighted by the Lagrange multipliers.
+
+\begin{align*}
+    \vec{w} = \sum_{\mu=1}^P \alpha_{\mu} y_{\mu} \vec{x}_{\mu}
+\end{align*}
+
+\subsection{The XOR Problem}
+The XOR function, which is not linearly separable, illustrates the limitations of linear classifiers. 
+By transforming the input space to a higher dimension, we can find a hyperplane that separates the XOR classes linearly.
+Consider the function $\Phi: \{0,1\}^2 \rightarrow \{0,1\}^3$ which is defined as follows:
+\begin{equation*}
+    \Phi(x_1, x_2) = \begin{bmatrix}
+        x_1 \\
+        x_2 \\
+        x_1 x_2
+    \end{bmatrix}
+\end{equation*}
+This mapping allows us to transform the input space into a new coordinate system where we can re-examine problems such as the logical gate with these new coordinates:
+\begin{align*}
+    (0, 0) &\mapsto (0, 0, 0) \\
+    (1, 0) &\mapsto (1, 0, 0) \\
+    (0, 1) &\mapsto (0, 1, 0) \\
+    (1, 1) &\mapsto (1, 1, 1)
+\end{align*}
+And we can see that the XOR function is now linearly separable in this new space, for example by $w = [1, 1, -2]$.
+
+
+\subsection{Nonlinear Decision Boundaries}
+The kernel method enables the construction of nonlinear decision boundaries in the original feature space. 
+This is achieved by transforming the input data to a higher-dimensional feature space where linear separation is possible.
+Another example: elliptical decision boundaries can be created by transforming the 2D input space to a 3D space using the mapping \\
+$\Phi(x_1, x_2) = (x_1^2, x_1 x_2, x_2^2)$.
+The equation of the separating hyperplane in the new space is $w_1 x_1^2 + w_2 x_1 x_2 + w_3 x_2^2 + b = 0$ (we explicitly write the bias term $b$ here).
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Figs/ellipse_kernel_trick.png}
+    \caption{Transforming the input space to a higher dimension allows for the creation of nonlinear decision boundaries.}
+    \label{fig:kernel_method}
+\end{figure}
+
+
+The expanded space $\vec{\phi}(\vec{x})$ is called the \textbf{feature space}.
+
+There are two things at play here. First, Cover's function counting theorem. We have seen that the number of points that can be classified in an arbitrary manner depends on the dimensionality of the input. We are classifying $P$ points, but instead of in space $\vec{x} \in \mathbb{R}^N$ we use space $\vec{\phi} \in \mathbb{R}^M$ with $M \gg N$.
+
+Second, we need the transformation to be \textbf{nonlinear}---we cannot just have linear relations embedded in higher dimensions (remember the general position requirements).
+
+Potentially, we can choose a very large feature space with very complex transfer functions $\vec{\Phi}$. However, there are two major problems with that approach:
+
+\begin{enumerate}
+    \item \textbf{Generalization}. As we have discussed, with a large set of features and parameters, we are at risk of overfitting our data: in the feature space we have $M \ll N$ parameters.
+    \item \textbf{Computation}. Working in high dimensions substantially increases computational costs.
+\end{enumerate}
+
+SVM offer solution to those two problems:
+
+\begin{enumerate}
+    \item \textbf{Generalization}. By looking for the optimal hyperplane, we are improving generalization. The optimal hyperplane has, at most, $P$ support vectors which will generally be significantly less than $M$ if we chose a very high-dimensional feature space.
+    \item \textbf{Computation}. SVM uses the kernel method, which we will introduce shortly, which does not require the full feature space. Again it relies on the idea that the limiting factor here is the number of data points $P$ and not the size of the feature space $M$.
+\end{enumerate}
+
+
+
+\subsection{The Kernel Trick}
+
+We assume that in the large feature space of \( M \) dimension, we choose the \( \vec{w} \) to be the optimal hyperplane. 
+The classification from the feature space is given by
+\begin{equation}
+    \hat{y} = \text{sign}(\vec{w}^T \Phi(\vec{x})).
+\end{equation}
+
+From our derivations of the SVM algorithm, we know that the weights can be written in terms of the support vectors. In this case
+\begin{equation}
+    \vec{w} = \sum_{\mu=1}^{P} \alpha_{\mu} y^{\mu} \Phi(\vec{x}^{\mu}).
+\end{equation}
+
+If we plug this into our estimator, we get
+\begin{equation}
+    \hat{y} = \text{sign} \left( \sum_{\mu} \alpha_{\mu} y^{\mu} \Phi(\vec{x}^{\mu}) \Phi(\vec{x}) \right).
+\end{equation}
+
+We see that \( \Phi \) enters the classification only through an inner product with another \( \Phi \) at a different point. We therefore define
+\begin{equation}
+    K(x_1, x_2) = \Phi(x_1) \cdot \Phi(x_2)
+\end{equation}
+
+Remember that \( x_1, x_2 \in \mathbb{R}^N \) and \( \Phi(x_1), \Phi(x_2) \in \mathbb{R}^M \). The estimator is given by
+\begin{equation}
+    \hat{y} = \text{sign} \left( \sum_{\mu} \alpha_{\mu} y^{\mu} K(x_{\mu}, x) \right).
+\end{equation}
+
+The function \( K(x_1, x_2) \) is called the \textit{kernel function}. 
+It is a transformation between two vectors of size \( N \) (\textbf{Not} \( M \)) to a scalar. \\
+The large space of \( \Phi \) size \( M \) is not a problem here: if we know the form of the function \( K(\cdot, \cdot) \), 
+then we don't need to do operations in the space of size \( M \).
+The learning algorithm is solvable in the $\textbf{Dual Space}$, and only the kernel function is needed to solve the problem.
+
+\subsection{Mercer's Theorem}
+Mercer's theorem assures that a function can be used as a kernel if it corresponds to a dot product in some higher-dimensional space, 
+given that it is symmetric and positive semidefinite. This theorem ensures the convergence of the SVM optimization problem.
+
+\begin{theorem}[Mercer's Theorem]
+    A symmetric function \( K(x, y) \) can be expressed as an inner product 
+    \[
+        K(x, y) = \Phi(x) \cdot \Phi(y)  
+    \]
+    for some feature space \( \Phi \) if and only if \( K(x, y) \) is positive semidefinite, i.e.,
+    \[
+        \int \int K(x, y) f(x) f(y) dx dy \geq 0 
+    \]
+    for every noramlizable function $f(x)$ in Hilbert space, i.e., $\int f^2(x) dx < \infty$, \\
+    or equivalently, The Gram matrix $K$ 
+    \[
+    \begin{bmatrix}
+        K(x_1, x_1) & K(x_1, x_2) & \cdots \\
+        K(x_2, x_1) & \ddots & \\
+        \vdots & & \ddots
+    \end{bmatrix}
+    \]
+    is positive semi-definite (psd) for any collection \( \{x_1, \dots, x_n\} \).
+\end{theorem}
+
+\subsubsection{Qualitative proof}
+
+The proof relied on extending the properties of symmetric functions in finite dimensions to kernels in infinite dimensions. 
+Thus, in analogy to symmetric matrices, symmetric Kernels have a countable orthogonal basis of eigenvectors with real and positive eigenfunctions. 
+In that case we can write:
+\begin{equation}
+    K(x, z) = \sum_{l} u_l(x)u_l(z)k_l
+\end{equation}
+Where \( k_l \) are real and are the spectra of \( K \) (analogous to the eigenvalue spectrum of symmetric matrices) 
+If the kernel is positive semidefinite, then all \( k_l \geq 0 \) are positive, and we can take the square root of it and define 
+\( \phi_l(x) = \sqrt{k_l}u_k(x) \) and the kernel is equal to
+\begin{equation}
+    K(x, z) = \sum_{l} \phi_l(x) \phi_l(z)
+\end{equation}
+
+The proof in the other direction is trivial: If \( K(x, z) \) can be written as a dot product then it is symmetric 
+by definition and if the two functions are real then it is semidefinite by definition.
+
+
+\subsection{Common Kernels}
+Kernels can take various forms, each corresponding to a different type of feature space transformation.
+
+\subsubsection{Exponential Kernel in 1D}
+For 1D input $x, z \in \mathbb{R}$, the exponential kernel is defined as:
+\begin{align*}
+    K(x, z) = e^{xz}
+\end{align*}
+This kernel corresponds to an infinite-dimensional feature space transformation
+\begin{align*}
+    \Phi(x) = e^x = (1, x, \frac{x^2}{\sqrt{2!}}, \frac{x^3}{\sqrt{3!}}, \ldots)
+\end{align*}
+since
+\begin{align*}
+    K(x,z) = \phi(x) \cdot \phi(z) = \sum_{n=1}^{\infty} \frac{(xz)^n}{n!}
+\end{align*}
+
+\subsubsection{Admissible Kernels}
+\begin {itemize}
+    \item Sum of admissible kernels is an admissible kernel.
+    \item Procuct of kernels (either element-wise or outer product) is an admissible kernel.
+    \item Translational invariant kernels: iff their Fourier transform is positive.
+\end {itemize}
+
+\subsubsection{Polynomial Kernel}
+The polynomial kernel is defined as follows:
+
+\begin{align*}
+    K(\vec{x}_\mu, \vec{x}_\nu) = (\vec{x}_\mu^T \vec{x}_\nu + c)^d
+\end{align*}
+
+\subsubsection{Gaussian Kernel}
+Also known as the Radial Basis Function (RBF) kernel:
+
+\begin{align*}
+    K(\vec{x}_\mu, \vec{x}_\nu) = \exp\left(-\frac{\|\vec{x}_\mu - \vec{x}_\nu\|^2}{2\sigma^2}\right)
+\end{align*}
+
+\subsubsection{Sigmoid Kernel}
+The sigmoid kernel is similar to the activation function used in neural networks:
+
+\begin{align*}
+    K(\vec{x}_\mu, \vec{x}_\nu) = \tanh(\gamma \vec{x}_\mu^T \vec{x}_\nu + r)
+\end{align*}
+
+The combination of the kernel method with slack variables in SVM leads to the creation of classifiers 
+that have strong generalization performance for various classification tasks. 
+This method allows the definition of complex decision surfaces without the high computational and generalization costs associated with large feature spaces.
+
 
 \section{The Cerebellum}
 
