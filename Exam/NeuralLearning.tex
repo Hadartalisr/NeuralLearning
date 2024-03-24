@@ -1219,22 +1219,61 @@ since
 \begin {itemize}
     \item Sum of admissible kernels is an admissible kernel.
     \item Procuct of kernels (either element-wise or outer product) is an admissible kernel.
-    \item Translational invariant kernels: iff their Fourier transform is positive.
-\end {itemize}
+    \item Translation invariant kernels (stationary kernels) - a special class of kernels with the property that their 
+    value depends only on the difference between the input vectors, not on the vectors themselves. For a translation invariant kernel \( K \), this implies that:
+    \begin{equation}
+        K(x, z) = K(x - z)
+    \end{equation}
+    
+    Alternatively, this can be expressed as:
+    
+    \begin{equation}
+        K(x, z) = K(\|x - z\|)
+    \end{equation}
+    
+    where \( \| \cdot \| \) denotes some norm of the vector difference, often the Euclidean norm.
+\end{itemize}
+
+\subsubsection{Gaussian / Radial Basis Function (RBF) Kernel}
+Is a translation invariant kernel, and is defined as:
+\begin{align*}
+    K(\vec{x}_\mu, \vec{x}_\nu) = \exp\left(-\frac{\|\vec{x}_\mu - \vec{x}_\nu\|^2}{2\sigma^2}\right) = \exp\left(-\gamma \|\vec{x}_\mu - \vec{x}_\nu\|^2\right)
+\end{align*}
+where \( \gamma = \frac{1}{2\sigma^2} \) is a hyperparameter that controls the kernel's width.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Figs/RBF_gamma.png}
+    \caption{The effect of the hyperparameter \( \gamma \) on the RBF kernel.}
+    \label{fig:RBF_kernel}
+\end{figure}
+
 
 \subsubsection{Polynomial Kernel}
 The polynomial kernel is defined as follows:
-
 \begin{align*}
     K(\vec{x}_\mu, \vec{x}_\nu) = (\vec{x}_\mu^T \vec{x}_\nu + c)^d
 \end{align*}
 
-\subsubsection{Gaussian Kernel}
-Also known as the Radial Basis Function (RBF) kernel:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Figs/Poly_deg.png}
+    \caption{The effect of the hyperparameter \( d \) on the polynomial kernel.}
+    \label{fig:RBF_kernel}
+\end{figure}
 
-\begin{align*}
-    K(\vec{x}_\mu, \vec{x}_\nu) = \exp\left(-\frac{\|\vec{x}_\mu - \vec{x}_\nu\|^2}{2\sigma^2}\right)
-\end{align*}
+When the input data is transformed by this polynomial kernel, we effectively map our original \( N \)-dimensional data into a new feature space whose dimensionality corresponds to the number of monomials of degree up to \( d \) that can be formed from \( N + 1 \) elements, which includes the additional bias term represented by the constant \( 1 \) in the kernel function.
+
+The dimensionality of the resulting feature space is given by the binomial coefficient, specifically:
+\begin{equation}
+    \text{dim}(\text{feature space}) = \binom{N + d}{d}
+\end{equation}
+This represents the number of unique ways to choose \( d \) items (with replacement) from a set of \( N + 1 \) items, which corresponds to the number of monomials of degree \( d \) or less that can be constructed from \( N + 1 \) features. This binomial coefficient is calculated as:
+\begin{equation}
+    \binom{N + d}{d} = \frac{(N + d)!}{d! \cdot (N + 1 - d)!}
+\end{equation}
+In the case of the polynomial kernel, this feature space is finite but can become very large as \( N \) or \( d \) increases, leading to a more expressive model that can capture complex relationships in the data.
+
 
 \subsubsection{Sigmoid Kernel}
 The sigmoid kernel is similar to the activation function used in neural networks:
@@ -1242,6 +1281,14 @@ The sigmoid kernel is similar to the activation function used in neural networks
 \begin{align*}
     K(\vec{x}_\mu, \vec{x}_\nu) = \tanh(\gamma \vec{x}_\mu^T \vec{x}_\nu + r)
 \end{align*}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Figs/Kernels.png}
+    \caption{Common kernel functions used in SVMs.}
+    \label{fig:kernel_functions}
+\end{figure}
+
 
 The combination of the kernel method with slack variables in SVM leads to the creation of classifiers 
 that have strong generalization performance for various classification tasks. 
