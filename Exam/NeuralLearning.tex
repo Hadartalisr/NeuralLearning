@@ -59,16 +59,26 @@ The directional gradient, on the other hand, gives the rate of change of the fun
 
 The delta symbol (\(\Delta\)), often used to signify change or difference, is employed in various contexts in mathematics and physics. For instance, \(\Delta x\) represents a change in the variable \(x\), and \(\Delta f(x) = f(x_2) - f(x_1)\) denotes the change in the function \(f\) as the argument moves from \(x_1\) to \(x_2\). This notation is essential for describing finite differences, differences in quantities, and is fundamental to the concepts of differentiation and integration.
 
+\subsection{Ratios}
+\begin{definition}{Proportionality}
+    Two quantities are said to be proportional if they vary in the same direction. 
+    Mathematically, two quantities \(x\) and \(y\) are proportional if there exists a constant \(k\) such that \(y = kx\).
+    We denote this relationship as \(x \propto y\).
+\end{definition}
 
 \section{Vector and matrix derivatives of scalar functions}
 
 \subsection{Definitions}
 
-The derivative of a scalar function with respect to a vector, \(\nabla_{\mathbf{x}} f\), results in a vector of partial derivatives. Similarly, the derivative of a scalar function with respect to a matrix, \(\nabla_{\mathbf{X}} f\), yields a matrix where each element is the partial derivative of \(f\) with respect to the corresponding element in \(\mathbf{X}\).
+The derivative of a scalar function with respect to a vector, \(\nabla_{\mathbf{x}} f\), 
+results in a vector of partial derivatives. Similarly, the derivative of a scalar function with respect to a matrix, \(\nabla_{\mathbf{X}} f\), 
+yields a matrix where each element is the partial derivative of \(f\) with respect to the corresponding element in \(\mathbf{X}\).
 
 \subsection{Examples}
 
-For a function \(f(\mathbf{x}) = \mathbf{x}^T\mathbf{A}\mathbf{x} + \mathbf{b}^T\mathbf{x} + c\), where \(\mathbf{x}\) is a vector, \(\mathbf{A}\) is a matrix, \(\mathbf{b}\) is a vector, and \(c\) is a scalar, the gradient with respect to \(\mathbf{x}\) is \(\nabla_{\mathbf{x}} f(\mathbf{x}) = 2\mathbf{A}\mathbf{x} + \mathbf{b}\).
+For a function \(f(\mathbf{x}) = \mathbf{x}^T\mathbf{A}\mathbf{x} + \mathbf{b}^T\mathbf{x} + c\), where \(\mathbf{x}\) is a vector,
+ \(\mathbf{A}\) is a matrix, \(\mathbf{b}\) is a vector, and \(c\) is a scalar, the gradient with respect to \(\mathbf{x}\) is 
+ \(\nabla_{\mathbf{x}} f(\mathbf{x}) = 2\mathbf{A}\mathbf{x} + \mathbf{b}\).
 
 \subsection{multi-variate chain rule} \label{ssec:chain_rule}
 Let $y(x,z)$ be a function of $x$ and $z$, and $x(w)$ and $z(w)$ be functions of $w$. 
@@ -95,7 +105,6 @@ Then the derivative of their quotient is given by:
 \section{Logarithms and exponentials}
 
 
-
 \subsection{Exponential function}
 The exponential function, denoted by \(e^x\), is a fundamental mathematical function that grows rapidly as \(x\) increases. 
 It is the inverse of the natural logarithm and is widely used in various mathematical and scientific contexts.
@@ -109,9 +118,10 @@ Important properties of the exponential function include:
     \item \(e^1 = e\)
     \item \(e^{-x} = \frac{1}{e^x}\)
     \item \(e^{x} > 0\) for all \(x \in \mathbb{R}\)
+    \item $\frac{d}{dx} e^x = e^x$
+    \item $\int e^x \, dx = e^x + C$
 \end{itemize}
 
-\textcolor{red}{todo - add graphs and rules derivation}
 
 \subsection{Natural logarithm}
 The natural logarithm, denoted by \(\ln(\cdot)\), is the inverse function of the exponential function. 
@@ -124,42 +134,362 @@ Important properties of the natural logarithm include:
     \item \(\ln(x^a) = a \ln(x)\)
     \item \(\ln(e) = 1\)
     \item \(\ln(1) = 0\)
+    \item $\frac{d}{dx} \ln(x) = \frac{1}{x}$
+    \item $\int \ln(x) \, dx = x \ln(x) - x + C$
 \end{itemize}
 
-\textcolor{red}{todo - add graphs}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{Figs/exp_and_log.jpeg}
+    \caption{Graphs of the exponential and natural logarithm functions.}
+    \label{fig:exp_log}
+\end{figure}
 
-%
-%
-%
 
-\textcolor{red}{todo - add logistic, normal, htan fuction draws and derivations}
+\section{Important functions}
+
+\subsection{Sine function}
+The sine function, denoted by \(\sin(\cdot)\), is a periodic function that represents one of the primary trigonometric functions.
+It is defined for a right-angled triangle as the ratio of the length of the opposite side to the length of the hypotenuse.
+
+\begin{definition}
+    The sine function is defined as:
+    \begin{equation}
+        \sin(x) = \frac{\text{opposite side}}{\text{hypotenuse}}
+    \end{equation}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the sine function is:
+    \begin{equation}
+        \frac{d}{dx} \sin(x) = \cos(x)
+    \end{equation}
+\end{claim*}
+
+\begin{claim*}
+    The integral of the sine function is:
+    \begin{equation}
+        \int \sin(x) \, dx = -\cos(x) + C
+    \end{equation}
+\end{claim*}
+
+
+\subsection{Cosine function}
+The cosine function, denoted by \(\cos(\cdot)\), is a periodic function that represents another primary trigonometric function.
+It is defined for a right-angled triangle as the ratio of the length of the adjacent side to the length of the hypotenuse.
+
+\begin{definition}
+    The cosine function is defined as:
+    \begin{equation}
+        \cos(x) = \frac{\text{adjacent side}}{\text{hypotenuse}}
+    \end{equation}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the cosine function is:
+    \begin{equation}
+        \frac{d}{dx} \cos(x) = -\sin(x)
+    \end{equation}
+\end{claim*}
+
+\begin{claim*}
+    The integral of the cosine function is:
+    \begin{equation}
+        \int \cos(x) \, dx = \sin(x) + C
+    \end{equation}
+\end{claim*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figs/sin_and_cos.png}
+    \caption{Graphs of the sine and cosine functions.}
+    \label{fig:sine_cosine}
+\end{figure}
+
+
+\subsection{Tangent function}
+The tangent function, denoted by \(\tan(\cdot)\), is a periodic function that relates to the sine and cosine functions.
+It is defined as \(\tan(x) = \frac{\sin(x)}{\cos(x)}\), and its period is \(\pi\).
+
+\begin {definition}
+    The tangent function is defined as:
+    \begin{equation}
+        \tan(x) = \frac{\sin(x)}{\cos(x)}
+    \end{equation}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the tangent function is:
+    \begin{equation}
+        \frac{d}{dx} \tan(x) = \frac{1}{\cos^2(x)} = \sec^2(x)
+    \end{equation}
+\end{claim*}
+
+\begin{claim*}
+    The integral of the tangent function is:
+    \begin{equation}
+        \int \tan(x) \, dx = -\ln|\cos(x)| + C
+    \end{equation}
+\end{claim*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figs/tangent.png }
+    \caption{Graph of the tangent function.}
+    \label{fig:tangent}
+\end{figure}
+
+\subsection{Arctangent function}
+The arctangent function, denoted by \(\arctan(\cdot)\), is the inverse of the tangent function.
+
+\begin{definition}
+    The arctangent function is defined as:
+    \begin{align*}
+        \arctan(x) = \tan^{-1}(x) = \frac{1}{\tan(x)} \\
+        \arctan(x) : \left(-\infty, \infty\right) \mapsto \left(-\frac{\pi}{2}, \frac{\pi}{2}\right)
+    \end{align*}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the arctangent function is:
+    \begin{equation}
+        \frac{d}{dx} \arctan(x) = \frac{1}{1 + x^2}
+    \end{equation}
+\end{claim*}
+
+\begin{claim*}
+    The integral of the arctangent function is:
+    \begin{equation}
+        \int \arctan(x) \, dx = x \arctan(x) - \frac{1}{2} \ln(1 + x^2) + C
+    \end{equation}
+\end{claim*}
+
+\begin{figure}[h]
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/arctan.png}
+        \caption{Graph of the arctangent function.}
+        \label{fig:arctangent}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/arctan_der.png}
+        \caption{Derivative of the arctangent function.}
+        \label{fig:arctangent_derivative}
+    \end{subfigure}
+\end{figure}
+
+\subsection{Tanh function}
+The hyperbolic tangent function, denoted by \(\tanh(\cdot)\), is a hyperbolic function that relates to the exponential function.
+\begin{definition}
+    The hyperbolic tangent function is defined as:
+    \begin{align*}
+        \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} = \frac{e^{2x} - 1}{e^{2x} + 1} \\
+        \tanh(x) : \mathbb{R} \mapsto (-1, 1)
+    \end{align*}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the hyperbolic tangent function is:
+    \begin{equation}
+        \frac{d}{dx} \tanh(x) = 1 - \tanh^2(x)
+    \end{equation}
+\end{claim*}
+
+\begin{claim*}
+    The integral of the hyperbolic tangent function is:
+    \begin{equation}
+        \int \tanh(x) \, dx = \ln(\cosh(x)) + C
+    \end{equation}
+\end{claim*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Figs/tanh_der.jpeg}
+    \caption{Graph of the hyperbolic tangent function and its derivative.}
+    \label{fig:tanh_derivative}
+\end{figure}
+
+
+\subsection{Sigmoid function}
+The sigmoid function, denoted by \(\sigma(\cdot)\), is a logistic function that maps real-valued numbers to the range \((0, 1)\).
+
+\begin{definition}
+    The sigmoid function is defined as:
+    \begin{align*}
+        \sigma(x) = \frac{1}{1 + e^{-x}}= \frac{e^x}{e^x + 1} = \frac{1}{2} + \frac{1}{2} \tanh\left(\frac{x}{2}\right) \\
+        \sigma(x) : \mathbb{R} \mapsto (0, 1)
+    \end{align*}
+\end{definition}
+
+\begin{claim*}
+    The derivative of the sigmoid function is:
+    \begin{equation}
+        \frac{d}{dx} \sigma(x) = \sigma(x)(1 - \sigma(x)) = \sigma(x) \sigma(-x)
+    \end{equation}
+\end{claim*}
+
+\begin {claim*}
+    The integral of the sigmoid function is:
+    \begin{equation}
+        \int \sigma(x) \, dx = x \sigma(x) - \ln(1 + e^x) + C
+    \end{equation}
+\end{claim*}
+
+\begin{figure}[h]
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/sigmoid.png}
+        \caption{Graph of the sigmoid function.}
+        \label{fig:sigmoid}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figs/sigmoid_der.png}
+        \caption{Derivative of the sigmoid function.}
+        \label{fig:sigmoid_derivative}
+    \end{subfigure}
+\end{figure}
+
 
 
 \section{Probability}
 
 \subsection{Definitions}
 
-Probability theory provides a mathematical framework for quantifying uncertainty. A probability space is defined by a sample space, events within the sample space, and a probability measure that assigns probabilities to events.
+Probability theory provides a mathematical framework for quantifying uncertainty. 
+A probability space is defined by a sample space, events within the sample space, and a probability measure that assigns probabilities to events.
 
 \subsection{Random variables}
 
-A random variable is a function that assigns a real number to each outcome in a sample space. The distribution of a random variable describes how probabilities are distributed over its possible values.
+A random variable is a function that assigns a real number to each outcome in a sample space. 
+The distribution of a random variable describes how probabilities are distributed over its possible values.
 
 \subsection{Gaussian (Normal) distribution}
 
-The Gaussian distribution is a continuous probability distribution characterized by its mean (\(\mu\)) and variance (\(\sigma^2\)). It is denoted as \(N(\mu, \sigma^2)\) and has the probability density function \(f(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\).
+The Gaussian distribution is a continuous probability distribution characterized by its mean (\(\mu\)) and variance (\(\sigma^2\)). 
+It is denoted as \(N(\mu, \sigma^2)\) and has the probability density function \(f(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\).
 
-\subsection{Central limit theorem (CLT)}
+\begin{definition}[Gaussian distribution]
+    The Gaussian distribution is defined as:
+    \begin{equation}
+        N(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+    \end{equation}
+\end{definition}
 
-The CLT states that, under certain conditions, the sum of a large number of independent, identically distributed random variables will be approximately normally distributed, regardless of the original distribution.
 
-\subsection{Correlation and covariance}
 
-Correlation and covariance are measures of how two random variables vary together. Covariance is defined as \(\text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]\), where \(E[\cdot]\) denotes the expected value. Correlation is the normalized version of covariance and provides a dimensionless measure of linear dependency.
+\begin{theorem}[The sum of two Gaussian random variables]\ \\
+    Let \(X \sim N(\mu_1, \sigma_1^2)\) and \(Y \sim N(\mu_2, \sigma_2^2)\) be independent Gaussian random variables. 
+    Then, the sum \(Z = X + Y\) is also Gaussian, with mean \(\mu_1 + \mu_2\) and variance \(\sigma_1^2 + \sigma_2^2\). i.e., 
+    \begin{align*}
+        Z = X + Y \sim N(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)
+    \end{align*}
+\end{theorem}
+
+\begin{theorem}[The product of two Gaussian random variables]\ \\
+    Let \(X \sim N(\mu_1, \sigma_1^2)\) and \(Y \sim N(\mu_2, \sigma_2^2)\) be independent Gaussian random variables. 
+    Then, the product \(Z = X \cdot Y\) is not Gaussian. \\
+    However, the PDF of the product of two Gaussian random variables is known as the \textit{product of two Gaussians} and is given by:
+    \begin{align*}
+        N\left( \mu_1, \sigma_1^2 \right) \cdot N\left( \mu_2, \sigma_2^2 \right) \sim
+        N(\frac{\mu_1 \sigma_2^2 + \mu_2 \sigma_1^2}{\sigma_1^2 + \sigma_2^2}, \frac{\sigma_1^2 \sigma_2^2}{\sigma_1^2 + \sigma_2^2})
+    \end{align*}
+    
+\end{theorem}
+
+\newpage
 
 \subsection{Multi-variate Gaussian distribution}
 
-The multi-variate Gaussian distribution extends the Gaussian distribution to multiple dimensions, characterized by a mean vector \(\boldsymbol{\mu}\) and a covariance matrix \(\boldsymbol{\Sigma}\). It describes the distribution of a random vector and is crucial for modeling the joint distribution of multiple random variables.
+The multi-variate Gaussian distribution extends the Gaussian distribution to multiple dimensions, 
+characterized by a mean vector \(\boldsymbol{\mu}\) and a covariance matrix \(\boldsymbol{\Sigma}\). 
+It describes the distribution of a random vector and is crucial for modeling the joint distribution of multiple random variables.
+
+
+Random $2 \times 1$ column vector $X$ and its mean
+\[
+X = \begin{pmatrix}
+X_1 \\
+X_2
+\end{pmatrix},
+\quad
+\mu = \begin{pmatrix}
+\mu_{X_1} \\
+\mu_{X_2}
+\end{pmatrix}
+\]
+
+and positive-semidefinite $2 \times 2$ variance--covariance matrix
+\[
+\Sigma = \begin{pmatrix}
+V[X_1] & \text{Cov}(X_1, X_2) \\
+\text{Cov}(X_1, X_2) & V[X_2]
+\end{pmatrix}
+= \begin{pmatrix}
+\sigma_{X_1}^2 & \rho\sigma_{X_1}\sigma_{X_2} \\
+\rho\sigma_{X_1}\sigma_{X_2} & \sigma_{X_2}^2
+\end{pmatrix}
+\]
+
+The joint pdf
+\[
+f(x_1, x_2) = \frac{1}{2\pi |\Sigma|^{\frac{1}{2}}} e^{-\frac{1}{2}(x-\mu)^\top \Sigma^{-1} (x-\mu)}
+\]
+
+where
+\begin{itemize}
+    \item $\Sigma^{-1}$ is the inverse of the variance--covariance matrix
+    \item $|\Sigma|$ is the determinant of the variance--covariance matrix
+    \item $(x-\mu)^\top$ denotes transpose
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figs/multivariate_gaussians.jpeg}
+    \label{fig:multivariate_gaussian}
+\end{figure}
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figs/2_dim_gaussian.png}
+    \label{fig:gaussian}
+\end{figure}
+
+
+\subsection{Central limit theorem (CLT)}
+
+The CLT states that, under certain conditions, the sum of a large number of independent, identically distributed random variables will be approximately normally distributed, 
+regardless of the original distribution.
+\begin{theorem}[Central Limit Theorem]\ \\
+    Let \(X_1, X_2, \ldots, X_n\) be independent, identically distributed random variables with mean \(\mu\) and variance \(\sigma^2\). 
+    Then, as \(n\) approaches infinity, the distribution of the sum \(S_n = X_1 + X_2 + \ldots + X_n\) converges to a 
+    Gaussian distribution with mean \(n\mu\) and variance \(n\sigma^2\). \\
+    The average X is distributed as:
+    \begin{align*}
+        \bar{X} = \frac{1}{n} \sum_{i=1}^{n} X_i \sim N(\mu, \frac{\sigma^2}{n})
+    \end{align*}
+\end{theorem}
+
+\subsection{Correlation and covariance}
+
+Correlation and covariance are measures of how two random variables vary together. 
+\begin{definition}[Covariance]
+    The covariance between two random variables \(X\) and \(Y\) is defined as:
+    \begin{equation}
+        \text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Correlation]
+    The correlation between two random variables \(X\) and \(Y\) is defined as:
+    \begin{equation}
+        \text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X) \text{Var}(Y)}}
+    \end{equation}
+\end{definition}
+
 
 
 \section{Positive Definite and Positive Semi-Definite Matrices}
