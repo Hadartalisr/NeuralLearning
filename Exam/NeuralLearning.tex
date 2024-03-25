@@ -195,7 +195,27 @@ Here are some common vector norms that are frequently used in the context of mac
     \item The \textit{Frobenius norm} of a matrix \(\mathbf{A} \in \mathbb{R}^{m \times n}\) is defined as \(\lVert \mathbf{A} \rVert_F = \sqrt{\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij}^2}\).
 \end{itemize}
 
-\subsection{Cosine similarity and distance}
+\section{Angle between vectors, cosine distance and similarity}
+
+The dot product of two vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$ is given by $\mathbf{x}^T \mathbf{y} = \lVert \mathbf{x} \rVert \lVert \mathbf{y} \rVert \cos \theta$, 
+where $\theta$ is the angle between the two vectors. The cosine of the angle is defined as \\
+\begin{equation}
+    \cos \theta = \frac{\mathbf{x}^T \mathbf{y}}{\lVert \mathbf{x} \rVert \lVert \mathbf{y} \rVert}
+\end{equation}
+
+The cosine similarity between two vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$ is defined as \\
+\begin{equation}
+    \text{cosine similarity} = \frac{\mathbf{x}^T \mathbf{y}}{\lVert \mathbf{x} \rVert \lVert \mathbf{y} \rVert}
+\end{equation}
+
+The cosine distance is defined as $1 - \text{cosine similarity}$, which ranges from 0 (for identical vectors) to 2 (for orthogonal vectors).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{Figs/angle_between_vectors.png}
+    \caption{The angle between two vectors.}
+    \label{fig:cosine_similarity}
+\end{figure}
 
 \subsection{Binomial coefficients}
 
