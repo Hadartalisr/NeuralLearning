@@ -2271,19 +2271,264 @@ The idea of disentanglement is seem to be unique to the motor cortex.
 The key ideas: 
 \begin{itemize}
     \item Tracking of the context is presumably particulary important during temporally extended actions.
-    \item The Supplem
+    \item The Supplementary Motor Area (SMA) is involved in high-order aspects of motor control: tracking progress throught an action.
+    \item Analogous population- trajectory geometry naturally arose in trained networks.
+    \item Reveals dynamical and geometrical principles by which neural networks can perform higher-order motor control.
+    \item Single neurons do not show the whole picture $\rightarrow$ geometry of population dynamics.
+    \item By training NN on an abstraction of the task, the neural mechanisms and dynamics are discovered.
 \end{itemize}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/monkeyb1.jpeg}
+    \caption{The experiment}
+    \label{fig:entanglement_untangling}
+\end{figure}
+
+Environment appears (green $\rightarrow$ Forword, desert $\rightarrow$ Backward) in initial position. \\
+$\longrightarrow$  every 1000ms, the target appears in the corresponding position to the cycling \\
+$\longrightarrow$  the monkey has to reach the target \\
 
 
 
 \subsubsection{Supplementary motor area (SMA)}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./Figs/monkey5.jpeg}
+    \caption{The motor cortex - M1 (the primary motor cortex), SMA (the supplementary motor area), the permotor cortex, and the prefrontal cortex.}
+    \label{fig:entanglement_untangling}
+\end{figure}
 
-\subsection{Context-dependent computation by recurent dynamics in prefrontal cortex}
-\subsubsection{The prefrontal cortex}
+\begin{itemize}
+    \item Part of the motor cortex of primates that contributes to the control of movement.
+    \item In monkeys (in hummans similar ideas), the SMA contains a rough map of the body.
+    \item Control of internally generated movements and not triggered by sensory events.
+    \item Control of sequences of movements.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/monkeyb2.jpeg}
+    \caption{The correlation between different cycles' neural activity in the SMA and M1. In M1 the correlation is high 
+    (meaning that the activity is similar in different cycles), while in the SMA the correlation is low (meaning that the activity is different in different cycles).}
+    \label{fig:entanglement_untangling}
+\end{figure}
+
+The hypothesis - SMA guides movement by tracking contextual factors. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/monkeyb3.jpeg}
+    \caption{The difference between the PCA of the neural activity in the SMA and M1.}
+    \label{fig:entanglement_untangling}
+\end{figure}
+
+\textbf{Hypothesis:} A helical SMA population trajectory is a natural solution to the problem of internally tracking motor context during multi-cycle rhythmic movement.
+
+Training RNN to generate the cycles of the experiment. \\
+\begin{itemize}
+    \item Backpropagation through time
+    \item Naive networks: Pulse for initiation and pulse for termination separated by 4-7 cycles
+    \item Context tracking: Only input pulse with information about the number of cycles to produce
+\end{itemize}
+  
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Figs/monkeyb4.jpeg}
+    \caption{The PCA of the neural activity in the trained network (naive and context tracking).}
+    \label{fig:entanglement_untangling}
+\end{figure}
+
+Assumptions/Criticisms:
+\begin{itemize}
+    \item What is the role of visual cues vs internal tracking of motion?
+    \item What happens in non-motor areas? Is the prefrontal cortex involved in tracking the context?
+    \item Why do we need two different areas? It seems that the SMA has the required information 
+    (The answer could be anathomy (M1 really controls the movement) or flexibility (M1 should perform other tasks)).
+\end{itemize}
+
+
+\subsection{Context-dependent computation by recurent dynamics in Prefrontal Cortex (PFC)}
+
 \subsubsection{Key ideas}
-\subsubsection{The experiment task, performance, and analysis}
+
+\begin{enumerate}
+    \item The prefrontal cortex (PFC) performs context-dependent integration.
+    \item Individual neurons have very complex activity patterns, and it is hard to understand anything from them.
+    \item Study the population dynamics of PFC of macaques performing a context-dependent integration task.
+    \item Activity can be understood as part of a dynamical system that controls the population activity.
+    \item By training artificial networks, they can reproduce the population dynamics.
+    \item Compare data and trained neural networks to different models.
+    \item The analysis suggests a new mechanism for context-dependent integration.
+\end{enumerate}
+
+\subsubsection{Background}
+
+\begin{itemize}
+    \item What is context-dependent integration?
+    \begin{itemize}
+        \item Ability to gather to process information depending on external/internal state.
+        \item Behavior involves top-down modulation from PFC, which is known for representing and maintaining contextual knowledge.
+    \end{itemize}
+    \item It was believed that the effects of context are already apparent in the sensory input stage (integration), 
+    and unnecessary inputs are ignored at that stage (until this paper it was believed that all the things that aren't important for a task are ignored but it showed 
+    that even higher areas in the brain receives all the input).
+\end{itemize}
+
+\subsubsection{Main findings}
+
+\begin{itemize}
+    \item They find no evidence that irrelevant sensory inputs are gated, or filtered out before the integration stage.
+    \item The selection is made later in the processing (meaning all information is preserved at first).
+    \item The same circuit (in PFC) that performs the integration holds the information relevant to the two contexts.
+    \item A recurrent neural network model shows dynamics similar to data and explains the underlying mechanism.
+\end{itemize}
+
+
+\subsubsection{The prefrontal cortex}
+
+The prefrontal cortex (PFC) is a cerebral cortex region located at the front of the brain. 
+$\textbf{The PFC}$ is instrumental in higher cognitive functions, such as decision-making, planning, and moderating social behavior. 
+It is considered the neural substrate for executive functions, orchestrating thoughts and actions in accordance with internal goals.
+Its intricate connectivity with other brain regions supports its role as a coordinator of cognitive processes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{./Figs/PFC2.png}
+    \caption{The prefrontal cortex.}
+\end{figure}
+
+
+\subsubsection{The experiment}
+
+
+\begin{enumerate}
+    \item \textbf{Training and Task}: The monkeys were trained to perform visual discrimination tasks that required them to selectively process and integrate 
+    sensory inputs based on the given context. The task required the monkeys to decide based on either the color 
+    or the direction of moving dots on a screen, indicated by a contextual cue.
+
+    \item \textbf{Stimuli Presentation}: During the experiments, the monkeys were shown a random-dot motion display where
+     they had to discriminate the direction of motion or the color of the dots, depending on the context cue given at the start.
+
+    \item \textbf{Saccadic Responses}: The monkeys had to indicate their decision by making a saccadic eye movement to 
+    one of two targets after a delay period. The targets represented the two choices corresponding 
+    to the task's context—either motion or color discrimination.
+
+    \item \textbf{Recording Neuronal Activity}: While the monkeys performed these tasks, neuronal activity was recorded from the PFC, 
+    specifically around the frontal eye field area, which is known to be involved in saccade planning and execution.
+
+    \item \textbf{Contextual Modulation}: The experiments aimed to understand how irrelevant sensory information is filtered out and 
+    how relevant information is enhanced in the PFC during task performance. 
+    The hypothesis was that the PFC dynamically selects relevant sensory inputs and integrates them to guide the decision-making process.
+
+    \item \textbf{Data Analysis}: The research involved analyzing the dynamics of neuronal populations in the PFC 
+    and developing computational models to understand how neurons in the PFC process different types of information based on context.
+    
+    \item \textbf{Conclusions}: This study provides insights into the flexible, context-dependent behavior facilitated by the PFC, 
+    illustrating that rather than sensory information being pre-filtered, the selection of relevant information occurs within the 
+    PFC itself through dynamic processes. The results challenge traditional models of early sensory selection, 
+    proposing that selection and integration are aspects of a single dynamical process within the prefrontal circuits.
+\end{enumerate}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/PFC1.jpeg}
+    \caption{The experiment task and basic results.}
+\end{figure}
+
+
+\subsubsection{Dynmics of population responses in PFC}
+
+\begin{definition}[Targeted-aligned PCA]
+    Targeted-aligned Principal Component Analysis (PCA) is a dimensionality reduction technique applied to neural data to isolate the variance most relevant to the task at hand. 
+    In the context of PFC dynamics, this method aligns the axes of the principal components with task-specific variables - such as choice, motion, color, and context. 
+\end{definition}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/PFC3.jpeg}
+    \caption{The dynamics of population responses in the PFC.}
+    \label{fig:PFC_PCA}
+\end{figure}
+
+What can we infer from the graphs in Figure \ref{fig:PFC_PCA}?
+\begin{itemize}
+    \item Neural activity does act according as we would expect, but we can see that the entire information is preserved while the decision is made.
+    \item Graph c: This shows the sorting of neural responses by irrelevant color in the motion context. 
+    Surprisingly, even though color should not influence the choice in the motion context, there's still a distinct separation of neural responses 
+    based on the color information. This suggests that the PFC does not entirely filter out irrelevant sensory information before the decision-making stage.
+    \item Graph d: This shows the sorting of neural responses by irrelevant motion in the color context.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./Figs/PFC4.jpeg}
+    \caption{Models of selective integration inconsistent with PFC responses.}
+    \label{fig:PFC_models}
+\end{figure}
+
+Figure \ref{fig:PFC_models} illustrates different models of selective integration and compares them to actual PFC (prefrontal cortex) data, 
+showcasing how these models are inconsistent with the observed neural responses in the PFC.
+\begin{itemize}
+    \item $\textbf{Column a - PFC data}$ - where trajectories depict neural activation paths during decision-making in both motion and color contexts.
+    The data shows curved trajectories that suggest the PFC processes both relevant and irrelevant sensory information before reaching a decision.
+    \item $\textbf{Column b - Context-dependent early selection}$ - posits that the PFC filters out irrelevant sensory information early in the process, 
+    allowing only relevant sensory inputs to influence the choice axis. This model is inconsistent with PFC data because the PFC appears 
+    to retain and process irrelevant information to some extent, contrary to the filtering-out mechanism suggested by this model.
+    \item $\textbf{Column c - Context-dependent input direction}$ - suggests that the relevance of sensory input is determined by its 
+    alignment with a choice axis that remains stable across contexts.
+    The neural responses are expected to directly align with the choice axis when inputs are relevant. 
+    This model is inconsistent with PFC data because the neural trajectories in the PFC do not realign with the choice axis in different contexts—irrelevant inputs still cause deviations.
+    \item $\textbf{Column d - Context-dependent output direction}$ - proposes that the choice axis itself shifts depending on the context, aligning with the relevant sensory 
+    input to guide decision-making. This too does not align with the PFC data, as the actual neural trajectories do not show a shift 
+    in the choice axis with different contexts; instead, both relevant and irrelevant inputs influence trajectories, demonstrating a more complex 
+    interaction than a simple shift in the choice axis.
+\end{itemize}
+
+
+
+
+They trained a recurrent neural network to perform the task. 
+The network was trained to generate the correct saccade based on the context cue (and by that they wanted to get a deeper understanding of the neural activity in the PFC).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/PFC5.jpeg}
+    \caption{Artifical neural network model.}
+    \label{fig:PFC_NN}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/PFC6.jpeg}
+    \caption{The PCA of the neural activity in the trained network gave similar results to the data from the PFC.}
+    \label{fig:PFC_NN_results}
+\end{figure}
+
+\begin{definition}[Line attractor]
+    A line attractor is a type of neural network architecture where the neural activity forms a stable trajectory along a line in the state space. 
+    This line represents a continuum of possible states or representations, and the neural activity moves along this line to encode different information or states.     
+\end{definition}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./Figs/PFC7.jpeg}
+    \caption{Interpretation of the dynamics - the context changes the landscape of the Line attractor. 
+    The inputs directons are preserved, but the way the trajectories relax back to the line attractor is different.}
+    \label{fig:PFC_NN_explained}
+\end{figure}
+
+\subsubsection{Assumptions/Criticisms/Questions}
+\begin{enumerate}
+    \item Are more areas other than PFC take part in the decision-making?
+    \item How realistic is the trained network? For example, having two channels for inputs.
+    \item If our artificial network found a solution, what can we say about the brain? How robust is the solution to different details/parameters?
+    \item Are the RNN results influenced by the design of the network?
+\end{enumerate}
+
 
 %
 %
