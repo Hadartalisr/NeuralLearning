@@ -365,6 +365,57 @@ A probability space is defined by a sample space, events within the sample space
 A random variable is a function that assigns a real number to each outcome in a sample space. 
 The distribution of a random variable describes how probabilities are distributed over its possible values.
 
+\subsection{Expectation and variance}
+\begin{definition}[Expectation]
+    The expectation of a random variable \(X\) is the average value it takes over all possible outcomes, weighted by their probabilities.
+    \begin{equation}
+        E[X] = \sum_{x} x \cdot P(X = x)
+    \end{equation}
+    or for continuous random variables:
+    \begin{equation}
+        E[X] = \int x \cdot P(x) \, dx
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Variance]
+    The variance of a random variable \(X\) measures how much its values deviate from the mean.
+    \begin{equation}
+        \text{Var}(X) = E[(X - E[X])^2]
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Standard deviation]
+    The standard deviation of a random variable \(X\) is the square root of its variance.
+    \begin{equation}
+        \text{Std}(X) = \sqrt{\text{Var}(X)}
+    \end{equation}
+\end{definition}
+
+\begin{theorem}[Expectation of product of random variables]\ \\
+    Let \(X\) and \(Y\) be two random variables. Then, the expectation of their product is:
+    \begin{align*}
+        E[XY] = E[X]E[Y] + \text{Cov}(X, Y) = E[X]E[Y] + E[(X - E[X])(Y - E[Y])]
+    \end{align*}
+    if \(X\) and \(Y\) are independent, then \(\text{Cov}(X, Y) = 0\) and \(E[XY] = E[X]E[Y]\).
+\end{theorem}
+
+\subsection{Correlation and covariance}
+
+Correlation and covariance are measures of how two random variables vary together. 
+\begin{definition}[Covariance]
+    The covariance between two random variables \(X\) and \(Y\) is defined as:
+    \begin{equation}
+        \text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Correlation]
+    The correlation between two random variables \(X\) and \(Y\) is defined as:
+    \begin{equation}
+        \text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X) \text{Var}(Y)}}
+    \end{equation}
+\end{definition}
+
 \subsection{Gaussian (Normal) distribution}
 
 The Gaussian distribution is a continuous probability distribution characterized by its mean (\(\mu\)) and variance (\(\sigma^2\)). 
@@ -473,22 +524,7 @@ regardless of the original distribution.
     \end{align*}
 \end{theorem}
 
-\subsection{Correlation and covariance}
 
-Correlation and covariance are measures of how two random variables vary together. 
-\begin{definition}[Covariance]
-    The covariance between two random variables \(X\) and \(Y\) is defined as:
-    \begin{equation}
-        \text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]
-    \end{equation}
-\end{definition}
-
-\begin{definition}[Correlation]
-    The correlation between two random variables \(X\) and \(Y\) is defined as:
-    \begin{equation}
-        \text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X) \text{Var}(Y)}}
-    \end{equation}
-\end{definition}
 
 
 
